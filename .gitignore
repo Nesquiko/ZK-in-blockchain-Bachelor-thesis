@@ -1,0 +1,5 @@
+*.aux
+_minted-main
+main.bbl
+main.run.xml
+main.synctex.gz
