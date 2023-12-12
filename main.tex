@@ -24,23 +24,29 @@
 % Initialize document
 \include{initialize}
 
+% TODO https://www.fiit.stuba.sk/buxus/docs/organizacia_studia/pokyny/ZP-clenenie-pokyny_2022.pdf
 % Cover & title page
 \include{pages/titlepage}
 
 % Thesis assignment
 \newpage
 \thispagestyle{empty}
-\includepdf[pages=1,scale=0.85]{assets/zadanie}
+\begin{center}
+    \includegraphics[scale=0.65]{assets/assignment.png}
+\end{center}
 \newpage
 \emptypage
 
 % Declaration of honor
-\include{pages/declaration}
+% TODO
+% \include{pages/declaration}
 
 % Acknowledgements
-\include{pages/acknowledgements}
+% TODO
+% \include{pages/acknowledgements}
 
 % Annotation
+% TODO add slovak
 \include{pages/annotation}
 
 % Table of contents
@@ -68,8 +74,7 @@
 
 % Begin references segment
 \begin{refsegment}
-
-    \include{content/chapter1}
+    \include{content/introduction}
     \emptypage
 
     \include{content/chapter2}

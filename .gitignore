@@ -3,3 +3,5 @@ _minted-main
 main.bbl
 main.run.xml
 main.synctex.gz
+main-blx.bib
+indent.log

@@ -1,0 +1,39 @@
+\chapter{Introduction}
+
+Zero Knowledge Proofs (ZKPs) are a powerful cryptography primitive. They allow
+for the verification of a statement's truth without disclosing or in any way revealing
+the actual content of the statement. This characteristic is crucial for
+maintaining trust between parties while also preserving privacy.
+
+The concept of ZKPs was first introduced in a 1989 research paper, "The
+Knowledge Complexity of Interactive Proof Systems."\cite{Goldwasser1989}.
+This work describes how in traditional proofs, such as demonstrating a graph
+is Hamiltonian, more information is typically revealed than just the truth of
+the theorem. This paper develops a computational complexity theory focusing
+on the knowledge part within a proof. It introduces zero knowledge proofs,
+a novel concept where proofs only confirm the correctness of a proposition
+without exposing any extra knowledge. The paper focuses on interactive
+proofs, where a dialogue between a prover and a verifier occurs. In these
+interactive proofs, the prover aims to convince the verifier about the truth
+of a private statement, with a very small probability of error. This
+interaction is pivotal in ZKPs, as it allows for the verification of a
+statement's truth without revealing the actual information or knowledge
+behind the statement, maintaining the principle of conveying no
+knowledge beyond the proposition's correctness.
+
+This thesis extends the application of ZKPs to the concept of stealth
+addresses in blockchain, as outlined in Vitalik Buterin's article "An
+Incomplete Guide to Stealth Addresses."\cite{ButerinIncompleteGuide}.
+Stealth addresses are critical for privacy on blockchains, allowing assets to
+be transferred without revealing the recipient's identity and making
+it difficult to link transactions to specific individuals.
+
+Stealth addresses allow a sender (Alice) to transfer assets to a receiver (Bob) without
+publicly revealing the Bob's identity. To achieve this, Bob
+must first provide a public meta stealth address generation data. This data
+has different structure based on the underlying stealth address generation
+schema. From this data Alice computes a new stealth address that only Bob can
+control, and sends the assets to that newly generated address. Bob can then
+access these assets from another address, only by providing a ZKP of given
+address ownership.
+
