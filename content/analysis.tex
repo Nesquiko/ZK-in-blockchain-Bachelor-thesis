@@ -1,0 +1,62 @@
+\chapter{Analysis}
+
+The analysis section of the thesis starts with demonstration of interactive
+proofs with goal to build up intuition behind interactive proofs \cite{Goldwasser1989,youtubeMOOCLecture1}.
+This section explains how Alice attempts to prove to Bob that she knows an
+algorithm, with which she computes some pair (N, y), such that this pair is
+part of the quadratic residue language QR. Specifically, Alice needs to
+convince Bob that there exists an x such that y equals x squared modulo N,
+effectively placing the pair (N, y) within the QR language, which includes all
+pairs where y is a quadratic residue of N.
+
+The analysis section continues by highlighting a practical limitation of
+interactive proofs in real world cryptography. It notes that for Alice to
+prove something to multiple parties, she would need to engage in separate
+interactions with each one. This approach is not scalable and becomes
+impractical for widespread verification needs. However, the thesis introduces
+the Fiat-Shamir transform \cite{Fiat}, a significant breakthrough that addresses this
+issue. This transform allows for converting the interactive proof into a
+non-interactive format by processing the interaction transcript, making the
+proof more practical and scalable for real-world cryptographic applications.
+
+While in theory any NP statement \cite{Goldwasser1989} can be proven using
+interactive proofs, practical implementation requires specific definition and
+encoding of the statement. There are two main models of general computation,
+those are circuits and turing machines. To trace the computation of a turing
+machine, the representation needs to somehow handle memory and thus would accrue
+more complexity than if a circuit is used. To represent a statement as a
+circuit, an arithmetic circuit, a computation model composed of addition and
+multiplication operations, is used. This circuit encodes the statement into a
+form suitable for "zk-ifying", enabling the application of interactive proofs
+to a broader range of practical scenarios.
+
+The analysis section then explores various ZKP systems, each with unique
+properties and proof constructions. The most renowned among these are SNARKs
+(Succinct Non-interactive ARguments of Knowledge), Bulletproofs, and STARKs
+(Scalable Transparent ARguments of Knowledge). These systems differ in aspects
+such as computational efficiency, size of proofs, and the need (or lack
+thereof) for a trusted setup. Each system offers advantages and challenges,
+making them suitable for different applications.
+
+The final part of the analysis examines how ZKP systems such as SNARKs enable
+the creation of a stealth address scheme that upholds privacy and security.
+This section assesses how these systems fulfill the necessary properties for a
+stealth address scheme, focusing on their ability to ensure transaction
+confidentiality while maintaining the anonymity of the recipient's identity.
+
+\section{Proof of quadratic residuosity}
+\[QR = \lbrace(N, y): \exists x, y \equiv x^2 \pmod{N}\rbrace\]
+
+\section{Arithmetic circuit}
+in a finite field $\mathbb{F}_p$
+
+
+
+
+the interaction part is non-practical => Fiat Shamir
+
+R1Cs
+
+SNARKs - from Dan Boneh MOOC
+commitments
+SZDL lemma = a polynomial is zero-polynomial with d\/p probability = zero - test
