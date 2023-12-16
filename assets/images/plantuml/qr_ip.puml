@@ -1,0 +1,25 @@
+@startuml
+skinparam DefaultFontSize 18
+skinparam sequenceArrowThickness 2
+
+hide footbox
+autonumber
+
+actor Alice as a #green
+actor Bob as b #blue
+
+
+a -> a : Generate pair (N, y)
+a -> a : Pick <math>r</math> and calculate\n<math>s \equiv r^2 (mod N)</math>
+a -> b : Send <math>s</math>
+|||
+a -> b : Ask Bob which value he wants.\nEither <math>\sqrt{s}</math> or <math>\sqrt{sy}</math>\nbut he can not have both!
+|||
+b -> a : Flip a coin and send <math>b</math>\nif heads then <math>b = 1</math> else <math>b = 0</math>
+|||
+a -> b : If <math>b = 1</math> then send\n  <math>z \equiv \sqrt{sy} \equiv r \sqrt{y} (mod N)</math>\nelse send\n  <math>z \equiv \sqrt{s} \equiv r (mod N)</math>
+
+b <- b : Accept if <math>z^2 = sy^b</math>
+
+@enduml
+
