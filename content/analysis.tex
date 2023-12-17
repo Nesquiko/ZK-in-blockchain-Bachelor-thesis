@@ -143,7 +143,73 @@ and Bob can compute the validity of the proof like this
 $validate(public\:input\:x,\:msg1,\:query(msg1),\:msg2) = accept/reject$.
 
 \section{Arithmetic circuit}
-in a finite field $\mathbb{F}_p$
+
+The computation model used to create ZKPs is an arithmetic circuit in a
+finite field $\mathbb{F}_p$. The arithmetic circuit is a function which takes
+$n$ elements from field $\mathbb{F}_p$ and returns one element from that field.
+
+\[AC: \mathbb{F}^n \rightarrow F \]
+
+The $AC$ can be represented as a directed acyclic graph, or a polynomial. For
+example, polynomial $x_1x_2 + (x_2 + x_3)^2$ represents the same circuit as this
+directed acyclic graph
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.25]{assets/images/dag_example.png}
+    \caption{Graph representation of arithmetic circuit}
+    \label{fig:dag_example}
+    \vspace{0.5cm}
+\end{figure}
+
+Another representation of a arithmetic circuits is called a Rank 1 Constraint
+System (R1CS). R1CS is a system of equations of a form $\alpha \times \beta = \gamma$,
+where $\alpha, \beta, \gamma$ are affine combinations of variables $w$ and $x$,
+where $w$ is a witness (private inputs) and $x$ is a public inputs.
+
+These are some examples of R1CS equations:
+\begin{displaymath}
+	\begin{array}{l}
+		(w_1 + x_3) \times (w_2 - x_1 + 1) = w_3 	\\
+		w_1 \times w_1 = x_1						\\
+		w_1 \times x_2 = w_3
+	\end{array}
+\end{displaymath}
+
+And here is an example of a invalid R1CS equations, because they are not linear
+combinations of variables $w$ and $x$:
+
+\begin{displaymath}
+	\begin{array}{l}
+		w_1 \times x_3 \times w_2 = w_3	\\
+		w_1 \times w_1 \times w_1 = x_1	\\
+		w_1 \times x_2 + w_3 = w_4 \times w_5
+	\end{array}
+\end{displaymath}
+
+To constrain the operation $w_1^3 = x_1$ in R1CS, there must be two equations, with
+a new intermediary variable $w_2$:
+
+\begin{displaymath}
+	\begin{array}{l}
+		w_1 \times w_1 = w_2	\\
+		w_1 \times w_2 = x_1
+	\end{array}
+\end{displaymath}
+
+
+
+
+% While in theory any NP statement \cite{goldreich1991proofs} can be proven using
+% interactive proofs, practical implementation requires specific definition and
+% encoding of the statement. There are two main models of general computation,
+% those are circuits and turing machines. To trace the computation of a turing
+% machine, the representation needs to somehow handle memory and thus would accrue
+% more complexity than if a circuit is used. To represent a statement as a
+% circuit, an arithmetic circuit, a computation model composed of addition and
+% multiplication operations, is used. This circuit encodes the statement into a
+% form suitable for "zk-ifying", enabling the application of interactive proofs
+% to a broader range of practical scenarios.
 
 % the interaction part is non-practical => Fiat Shamir
 

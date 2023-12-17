@@ -5,3 +5,8 @@ main.run.xml
 main.synctex.gz
 main-blx.bib
 indent.log
+main.fls
+main.lof
+main.log
+main.out
+main.toc
