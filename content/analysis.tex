@@ -19,7 +19,7 @@ issue. This transform allows for converting the interactive proof into a
 non-interactive format by processing the interaction transcript, making the
 proof more practical and scalable for real-world cryptographic applications.
 
-While in theory any NP statement \cite{Goldwasser1989} can be proven using
+While in theory any NP statement \cite{goldreich1991proofs} can be proven using
 interactive proofs, practical implementation requires specific definition and
 encoding of the statement. There are two main models of general computation,
 those are circuits and turing machines. To trace the computation of a turing
@@ -92,6 +92,55 @@ the interaction can go. Since Alice can't reliably predict what the random
 coin toss will yield, she must be ready to provide both equations. Thus Bob is
 convinced, that Alice isn't cheating, with probability $P(Accept) = (0.5)^k$,
 and can accept the proof.
+
+\section{Non-interactive proofs}
+
+Interactive proofs require Alice to engage in a unique interaction with each
+individual verifier, which is not scalable or feasible for widespread
+application. Many ZKP protocols only require from the verifier a random input
+(for instance, a coin toss). Protocols, in which the verifier's role is
+generating some randomness and making it public are called public coin protocols \cite{Babai1988,Goldwasser1986}.
+The paper "How To Prove Yourself: Practical Solutions to Identification and
+Signature Problems"\cite{Fiat} by Fiat and Shamir demonstrates how these
+interactive public coin protocols can be efficiently transformed into
+non-interactive ones, offering a more scalable and practical solution for ZKPs.
+
+To transform a interactive public coin protocol into a non-interactive,
+Alice uses a random oracle which can provide a random coin toss based on some
+input. In practice the source of randomness of the random oracle is a
+cryptographic hash function, such as SHA256. Instead of sending messages back
+and forth between Alice and Bob, Alice provides to Bob a transformed
+transcript of the interaction. Since Bob's role in this interaction would only
+be generating random coin toss, Alice can in advance query the random oracle
+for this random value, and supply the message as an input to the query. The
+transcript string would look like this $(msg1, query(msg1), msg2, ...)$, where $query$ is
+the output from random oracle. This string and the public input of the proof
+can then be published and anybody, not just Bob, can validate this proof
+on their own.
+
+In scenario when Alice sends only two messages and requires one random coin toss
+from Bob,
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.6]{assets/images/interactive_coin.png}
+    \caption{Interactive public coin proof}
+    \label{fig:interactive_coin}
+    \vspace{0.5cm}
+\end{figure}
+Bob at the end can compute the validity of the proof from Alice with
+$validate(public\:input\:x,\:msg1,\:coin\:toss,\:msg2) = accept/reject$
+
+Then after applying Fiat-Shamir transform, Alice only sends one message with
+the transcript string,
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.6]{assets/images/non_interactive_coin.png}
+    \caption{Non-interactive public coin proof}
+    \label{fig:non_interactive_coin}
+    \vspace{0.5cm}
+\end{figure}
+and Bob can compute the validity of the proof like this
+$validate(public\:input\:x,\:msg1,\:query(msg1),\:msg2) = accept/reject$.
 
 \section{Arithmetic circuit}
 in a finite field $\mathbb{F}_p$

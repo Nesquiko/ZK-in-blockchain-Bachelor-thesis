@@ -1,0 +1,16 @@
+@startuml
+skinparam DefaultFontSize 18
+skinparam sequenceArrowThickness 2
+
+hide footbox
+'autonumber
+
+actor Alice as a #green
+actor Bob as b #blue
+
+
+a -> b : msg 1
+b -> a : coin toss
+a -> b : msg 2
+
+@enduml

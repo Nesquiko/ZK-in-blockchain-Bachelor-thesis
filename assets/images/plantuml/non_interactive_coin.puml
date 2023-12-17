@@ -1,0 +1,13 @@
+@startuml
+skinparam DefaultFontSize 18
+skinparam sequenceArrowThickness 2
+
+hide footbox
+'autonumber
+
+actor Alice as a #green
+actor Bob as b #blue
+
+
+a -> b : (msg1, query(msg1), msg2)
+@enduml
