@@ -30,13 +30,10 @@ multiplication operations, is used. This circuit encodes the statement into a
 form suitable for "zk-ifying", enabling the application of interactive proofs
 to a broader range of practical scenarios.
 
-The analysis section then explores various ZKP systems, each with unique
-properties and proof constructions. The most renowned among these are SNARKs
-(Succinct Non-interactive ARguments of Knowledge), Bulletproofs, and STARKs
-(Scalable Transparent ARguments of Knowledge). These systems differ in aspects
-such as computational efficiency, size of proofs, and the need (or lack
-thereof) for a trusted setup. Each system offers advantages and challenges,
-making them suitable for different applications.
+The analysis section then explores SNARKs (Succinct Non-interactive ARguments
+of Knowledge), which are most commonly used ZKP system today. They are succinct,
+meaning that the size of the proof is small and have a relatively fast verification
+time.
 
 The final part of the analysis examines how ZKP systems such as SNARKs enable
 the creation of a stealth address scheme that upholds privacy and security.
@@ -197,24 +194,81 @@ a new intermediary variable $w_2$:
 	\end{array}
 \end{displaymath}
 
+\section{SNARKs}
 
+After defining an arithmetic circuit, it can be transformed into a SNARK,
+a Succinct Non-interactive ARgument of Knowledge. The succint part means that
+the size of the proof must be sublinear in size of witness (when talking about
+strong succinctness, the proof size is logarithmic in size of circuit), and
+the verification must be sublinear in size of circuit and linear in size of
+public input (when talking about strong efficiency, the verification time is
+logarithmic in size of circuit and linear in size of public input).
+A SNARK is a tripple of algorithms $(Setup, Prove, Verify)$.
 
+\subsection{Setup}
 
-% While in theory any NP statement \cite{goldreich1991proofs} can be proven using
-% interactive proofs, practical implementation requires specific definition and
-% encoding of the statement. There are two main models of general computation,
-% those are circuits and turing machines. To trace the computation of a turing
-% machine, the representation needs to somehow handle memory and thus would accrue
-% more complexity than if a circuit is used. To represent a statement as a
-% circuit, an arithmetic circuit, a computation model composed of addition and
-% multiplication operations, is used. This circuit encodes the statement into a
-% form suitable for "zk-ifying", enabling the application of interactive proofs
-% to a broader range of practical scenarios.
+The $Setup$ takes
+the arithmetic circuit $C(x, w) \rightarrow \mathbb{F}$, where $x$ is a public
+input (from $\mathbb{F}^n$) and $w$ is a witness (from $\mathbb{F}^m$), and
+is preprocessed, which creates public parameters $pp$ (prover's parameters)
+and $vp$ (verifier's parameters). This setup process is what enables the
+proof to be logarithmic in size of circuit. It is a summary of the circuit,
+so the verifier does not need to know the whole circuit, just the summary.
 
-% the interaction part is non-practical => Fiat Shamir
+This setup procedure has 3 types:
 
-% R1Cs
+\begin{itemize}
+	\item Trusted setup: the setup is of form $Setup(C, r) \rightarrow (pp, vp)$,
+		where $r$ is a random value. The random value must be destroyed after
+		the setup, because if it is not, the prover can use it to prove a false
+		statement.
+	\item Universal trusted setup: the setup is split into two parts. The first
+		part takes only $r$ and creates $gp$ (global parameters). This part
+		is ran once and the $r$ must be destroyed, due to the same reason as
+		in trusted setup. The second part takes $gp$ and $C$ and creates
+		$pp$ and $vp$. This part can be ran for any circuit $C$.
+	\item Transparent setup: the setup is of form $Setup(C) \rightarrow (pp, vp)$,
+		where $C$ is a circuit. This setup does not require any random value,
+		hence anyone can verify that the setup is valid.
+\end{itemize}
 
-% SNARKs - from Dan Boneh MOOC
-% commitments
-% SZDL lemma = a polynomial is zero-polynomial with d\/p probability = zero - test
+\subsection{Prove and Verify}
+
+The $Prove$ algorithm takes the prover's parameters $pp$, public input $x$,
+witness $w$ and creates a proof $\pi$ which proves that $C(x, w) = 0$. 
+The $Verify$ algorithm takes the verifier's parameters $vp$, public input $x$ and
+proof $\pi$ and returns $accept/reject$. These algorithms combine two
+cryptographic primitives, a functional commitment scheme and an interactive
+oracle proof, in order create and verify the proof.
+
+Functional commitment scheme is a cryptographic primitive, which allows the
+prover to commit to a function $f$ and the verifier can query the commitment and
+prover must provide the evaluation of the function $f$ at the queried point,
+and a proof that the evaluation is correct.
+
+The interactive oracle proof begins with instantiating $vp$ in the setup phase, such that
+$vp = (comm_{f1}, comm_{f2}, \dots, comm_{fn})$, where $comm_{fi}$ is a
+functional commitment for a function $f_i$. Verifier can interactively query
+any of the commitments and prover must provide the evaluation of the function
+$f_i$ at the queried point, and a proof that the evaluation is correct.
+Then during the interaction prover and verifier exchange additional function
+commitments $comm_{f1}, comm_{f2}, \dots, comm_{fm}$, and random values $r_1, r_2, \dots, r_m$.
+At the end verifier computes:
+
+\[ Verify^{comm_{f1}, comm_{f2}, \dots, comm_{fm}, \ldots, comm_{fn}}(x, r_1, r_2, \dots, r_m) = accept/reject \]
+
+The $Verify$ algorithm computes if the proof is valid, based on queried
+function commitments from $vp$, and the function commitments which were
+exchanged during the interaction. Verifier checks if evaluations
+of committed polynomials are equal to evaluations of the polynomials, which
+verifier can compute from the public input $x$, proving that the prover's
+polynomials are equal to the verifier's polynomials. Elaboration why evaluation
+at random point is enough to prove that two polynomials are equal can be found
+Appendix \ref{appendix:zero_test}.
+
+To make this process non-interactive, the Fiat-Shamir transform is applied on
+the random values $r_1, r_2, \dots, r_m$. So the proof $\pi$ is a string of 
+\[ (comm_{f1}, FS(r_1), comm_{f2}, FS(r_2), \dots, comm_{fm}, FS(r_m)) \]
+Verifier than computes $Verify(vp, x, \pi) = accept/reject$, where $\pi$ is
+a transcript of the interaction between prover and Fiat-Shamir supplied random
+values.
