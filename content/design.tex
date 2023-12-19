@@ -1,0 +1,26 @@
+\chapter{Solution Desing}
+
+The Solution Design section outlines the design of a stealth address
+scheme using ZKPs for the Ethereum blockchain. The scenario which is being
+solved involves Alice, who wishes to send funds to Bob discreetly, ensuring no
+one else can identify Bob as the recipient. This part of the thesis details
+the application of ZKPs employed to achieve this privacy, allowing Alice to
+complete the transaction without compromising Bob's identity.
+
+\section{Initial Setup}
+
+Before Alice can send funds to Bob, Bob must first publish his meta stealth
+address to some public location. Bob generates:
+
+\begin{itemize}
+	\item A private key $k$
+	\item A corresponding public key $K$
+	\item A secret value $x$
+	\item A hash of the secret value $h = hash(x)$
+\end{itemize}
+
+Bob then publishes his meta stealth address in the form of a tuple $(K, h)$.
+The hash is later used to prove to a stealth address contract that Bob is the
+owner of the address and can spend funds sent to it.
+
+
