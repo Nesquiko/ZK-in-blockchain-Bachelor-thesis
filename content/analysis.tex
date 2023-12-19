@@ -166,32 +166,32 @@ where $w$ is a witness (private inputs) and $x$ is a public inputs.
 
 These are some examples of R1CS equations:
 \begin{displaymath}
-	\begin{array}{l}
-		(w_1 + x_3) \times (w_2 - x_1 + 1) = w_3 	\\
-		w_1 \times w_1 = x_1						\\
-		w_1 \times x_2 = w_3
-	\end{array}
+    \begin{array}{l}
+        (w_1 + x_3) \times (w_2 - x_1 + 1) = w_3 \\
+        w_1 \times w_1 = x_1                     \\
+        w_1 \times x_2 = w_3
+    \end{array}
 \end{displaymath}
 
 And here is an example of a invalid R1CS equations, because they are not linear
 combinations of variables $w$ and $x$:
 
 \begin{displaymath}
-	\begin{array}{l}
-		w_1 \times x_3 \times w_2 = w_3	\\
-		w_1 \times w_1 \times w_1 = x_1	\\
-		w_1 \times x_2 + w_3 = w_4 \times w_5
-	\end{array}
+    \begin{array}{l}
+        w_1 \times x_3 \times w_2 = w_3 \\
+        w_1 \times w_1 \times w_1 = x_1 \\
+        w_1 \times x_2 + w_3 = w_4 \times w_5
+    \end{array}
 \end{displaymath}
 
 To constrain the operation $w_1^3 = x_1$ in R1CS, there must be two equations, with
 a new intermediary variable $w_2$:
 
 \begin{displaymath}
-	\begin{array}{l}
-		w_1 \times w_1 = w_2	\\
-		w_1 \times w_2 = x_1
-	\end{array}
+    \begin{array}{l}
+        w_1 \times w_1 = w_2 \\
+        w_1 \times w_2 = x_1
+    \end{array}
 \end{displaymath}
 
 \section{SNARKs}
@@ -218,24 +218,24 @@ so the verifier does not need to know the whole circuit, just the summary.
 This setup procedure has 3 types:
 
 \begin{itemize}
-	\item Trusted setup: the setup is of form $Setup(C, r) \rightarrow (pp, vp)$,
-		where $r$ is a random value. The random value must be destroyed after
-		the setup, because if it is not, the prover can use it to prove a false
-		statement.
-	\item Universal trusted setup: the setup is split into two parts. The first
-		part takes only $r$ and creates $gp$ (global parameters). This part
-		is ran once and the $r$ must be destroyed, due to the same reason as
-		in trusted setup. The second part takes $gp$ and $C$ and creates
-		$pp$ and $vp$. This part can be ran for any circuit $C$.
-	\item Transparent setup: the setup is of form $Setup(C) \rightarrow (pp, vp)$,
-		where $C$ is a circuit. This setup does not require any random value,
-		hence anyone can verify that the setup is valid.
+    \item Trusted setup: the setup is of form $Setup(C, r) \rightarrow (pp, vp)$,
+          where $r$ is a random value. The random value must be destroyed after
+          the setup, because if it is not, the prover can use it to prove a false
+          statement.
+    \item Universal trusted setup: the setup is split into two parts. The first
+          part takes only $r$ and creates $gp$ (global parameters). This part
+          is ran once and the $r$ must be destroyed, due to the same reason as
+          in trusted setup. The second part takes $gp$ and $C$ and creates
+          $pp$ and $vp$. This part can be ran for any circuit $C$.
+    \item Transparent setup: the setup is of form $Setup(C) \rightarrow (pp, vp)$,
+          where $C$ is a circuit. This setup does not require any random value,
+          hence anyone can verify that the setup is valid.
 \end{itemize}
 
 \subsection{Prove and Verify}
 
 The $Prove$ algorithm takes the prover's parameters $pp$, public input $x$,
-witness $w$ and creates a proof $\pi$ which proves that $C(x, w) = 0$. 
+witness $w$ and creates a proof $\pi$ which proves that $C(x, w) = 0$.
 The $Verify$ algorithm takes the verifier's parameters $vp$, public input $x$ and
 proof $\pi$ and returns $accept/reject$. These algorithms combine two
 cryptographic primitives, a functional commitment scheme and an interactive
@@ -267,8 +267,37 @@ at random point is enough to prove that two polynomials are equal can be found
 Appendix \ref{appendix:zero_test}.
 
 To make this process non-interactive, the Fiat-Shamir transform is applied on
-the random values $r_1, r_2, \dots, r_m$. So the proof $\pi$ is a string of 
+the random values $r_1, r_2, \dots, r_m$. So the proof $\pi$ is a string of
 \[ (comm_{f1}, FS(r_1), comm_{f2}, FS(r_2), \dots, comm_{fm}, FS(r_m)) \]
 Verifier than computes $Verify(vp, x, \pi) = accept/reject$, where $\pi$ is
 a transcript of the interaction between prover and Fiat-Shamir supplied random
 values.
+
+\section{Stealth addresses}
+
+Ethereum is a public blockchain, where all transactions are visible to anyone,
+and all addresses are visible to anyone. This is a problem for privacy, because
+if someone knows your address, they can see all your transactions.
+
+One solution to this problem is to generate a new address for every transaction.
+However, if somebody wants to send you some funds, they need to wait for you to
+generate a new address and send it to them. Which quickly becomes impractical.
+
+The concept of stealth addresses was introduced in 2014 by Peter Todd \cite{ToddStealthAddresses}.
+It enables senders to send funds to a recipient without leaking the recipient's
+identity to the public. Only the recipient can then prove that they own the stealth
+address, and can spend the funds.
+
+For a recipient to receive funds, they need to publish a meta stealth address,
+from which senders can generate a new stealth address. This new stealth address
+can not be linked to the meta stealth address, and thus the recipient's identity
+is protected. Additionally, senders must publish some information, which allows
+the recipient to derive the private key for the stealth address.
+
+ZKPs can be used to prove that the recipient owns the stealth address, and
+thus can spend the funds. The proof can be sent from any address, but only
+the recipient can generate it, because only he knows the private data
+that is required to generate the proof. The zero knowledge property of the
+proof ensures that the recipient's identity is not revealed.
+
+
