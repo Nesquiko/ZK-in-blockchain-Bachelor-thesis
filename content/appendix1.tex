@@ -8,24 +8,24 @@
 
 \begin{refsegment}
 
-The polynomial zero test is at the heart of the SNARK construction. Given a
-polynomial $f \in \mathbb{F}_p^{\leq d}[X]$, the probability that a random
-element $x \in \mathbb{F}_p$ is a root of $f$ is $d/p$.
+    The polynomial zero test is at the heart of the SNARK construction. Given a
+    polynomial $f \in \mathbb{F}_p^{\leq d}[X]$, the probability that a random
+    element $x \in \mathbb{F}_p$ is a root of $f$ is $d/p$.
 
-\[ \Pr[f(x) = 0] \leq \frac{d}{p} \]
+    \[ \Pr[f(x) = 0] \leq \frac{d}{p} \]
 
-For example, $p = 2^{256}$ and $d = 2^{32}$, the probability that a random
-element $x \in \mathbb{F}_p$ is a root of $f$ is $2^{224}$. This is a negligible
-probability, and we can assume that $f$ is zero polynomial with high
-probability when $f(x) = 0$ for a random $x \in \mathbb{F}_p$.
+    For example, $p = 2^{256}$ and $d = 2^{32}$, the probability that a random
+    element $x \in \mathbb{F}_p$ is a root of $f$ is $2^{224}$. This is a negligible
+    probability, and we can assume that $f$ is zero polynomial with high
+    probability when $f(x) = 0$ for a random $x \in \mathbb{F}_p$.
 
-The generalization of the polynomial zero test for multivariate polynomials is
-known as \textit{SZDL lemma}.
+    The generalization of the polynomial zero test for multivariate polynomials is
+    known as \textit{SZDL lemma} \cite{Schwartz1980,Zippel1979,Demillo1978}.
 
-This can be used to prove that two polynomials are equal. Given two polynomials
-$f, g$, we can evaluate $h = f - g$ at a random point $x$. If $h(x) = 0$, then
-$f(x) - g(x) = 0 \Longrightarrow f(x) = g(x) \Longrightarrow f = g$ with high probability.
+    This can be used to prove that two polynomials are equal. Given two polynomials
+    $f, g$, we can evaluate $h = f - g$ at a random point $x$. If $h(x) = 0$, then
+    $f(x) - g(x) = 0 \Longrightarrow f(x) = g(x) \Longrightarrow f = g$ with high probability.
 
-\printbibliography[heading=referencessec,segment=\therefsegment,resetnumbers=true]
+    \printbibliography[heading=referencessec,segment=\therefsegment,resetnumbers=true]
 
 \end{refsegment}
