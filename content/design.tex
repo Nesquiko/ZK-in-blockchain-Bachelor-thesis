@@ -32,21 +32,21 @@ following:
 \begin{itemize}
 	\item A secret value $c$
 	\item A new random stealth address $SA$
-	\item An empheral key $P = encrypt(value=[c, SA], key=K)$
+	\item An ephemeral key $P = encrypt(value=[c, SA], key=K)$
 	\item A code $C = hash(h, c)$
 \end{itemize}
 
 Alice then creates a smart contract at the new stealth address $SA$, which contains
 the code $C$ and sends funds to it. Then in the same transaction, Alice sends
-the empheral key $P$ to public registry contract, which stores the empheral
+the ephemeral key $P$ to public registry contract, which stores the ephemeral
 keys for all stealth addresses.
 
 \section{Scanning for Stealth Addresses}
 
 Bob scans for stealth addresses by querying the public registry contract
 from tha last point he scanned. The registry contract returns a list of
-empheral keys. Bob then decrypts each empheral key with his private key $k$.
-If the empheral key is meant for Bob, then it will contain the secret value
+ephemeral keys. Bob then decrypts each ephemeral key with his private key $k$.
+If the ephemeral key is meant for Bob, then it will contain the secret value
 $c$ and the stealth address $SA$.
 
 \section{Gaining control of Stealth Addresses}
