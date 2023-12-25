@@ -5,7 +5,7 @@ proofs with goal to build up intuition behind interactive proofs \cite{Goldwasse
 This section explains how Alice attempts to prove to Bob that she knows an
 algorithm, with which she computes some pair (N, y), such that this pair is
 part of the quadratic residue language QR. Specifically, Alice needs to
-convince Bob that there exists an x such that y equals x squared modulo N,
+convince Bob that there exists an x, such that y equals x squared modulo N,
 effectively placing the pair (N, y) within the QR language, which includes all
 pairs where y is a quadratic residue of N.
 
@@ -77,7 +77,7 @@ cheating, she can not find the $\sqrt{s}$ and $\sqrt{sy}$. If she could,
 that would mean that she is not cheating.
 
 If the Alice's claim is true, Bob will accept. If Alice is not honest, and
-cheats, all provers will not accept with probability $P(Accept) = 0.5$.
+cheats, all verifiers will not accept with probability $P(Accept) = 0.5$.
 But this probability may not be satisfying enough. To make the probability
 that Alice is cheating smaller, Bob and Alice can start the interaction once
 again. This would lead to $P(Accept) = (0.5)^2$. They can redo the process

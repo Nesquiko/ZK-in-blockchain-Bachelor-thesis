@@ -55,7 +55,7 @@ Bob can gain control of the stealth address $SA$ by proving to the stealth
 address contract that he is the owner of the values $x$ and $c$, such that
 $C = hash(h, c) = hash(hash(x), c)$. Bob does this by computing a ZKP for 
 this statement and sending it in a transaction from any address (preferably
-not from any Bob's publicly known address) to the stealth address $SA$. The
+not from any Bob's publicly known addresses) to the stealth address $SA$. The
 $SA$ contract verifies the proof and if it isn't valid, the transaction is
 rejected.
 
