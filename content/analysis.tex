@@ -54,19 +54,20 @@ QR is defined as:
     \centering
     \includegraphics[scale=0.6]{assets/images/qr_ip.png}
     \caption{Interactive proof of language QR}
+	\cite{Goldwasser1989, youtubeMOOCLecture1}
     \label{fig:qr_ip}
     \vspace{0.5cm}
 \end{figure}
 
 \begin{enumerate}
-    \item Alice generates pair (N, y)
-    \item Alice picks a random $r$ such that $1 \leq r \leq N$ and $\gcd(r, N) = 1$
-          and calculates $s \equiv r^2 \pmod{N}$
-    \item Alice sends Bob $s$
-    \item Alice asks Bob which value he wants. Either $\sqrt{s}$ or $\sqrt{sy}$, but he can not have both!
-    \item Bob flips a coin and sends $b$ such that if coin landed on heads $b = 1$ else $b = 0$
-    \item If $b = 1$ Alice sends to Bob $z \equiv \sqrt{sy} \equiv r \sqrt{y} \pmod{N}$ else she sends $z \equiv \sqrt{s} \equiv r \pmod{N}$
-    \item Bob accepts if $z^2 = sy^b$
+    \item Alice generates pair (N, y),
+    \item Alice picks a random $r$ such that $1 \leq r \leq N$ and $\gcd(r, N) = 1$,
+          and calculates $s \equiv r^2 \pmod{N}$,
+    \item Alice sends Bob $s$,
+    \item Alice asks Bob which value he wants. Either $\sqrt{s}$ or $\sqrt{sy}$, but he can not have both,
+    \item Bob flips a coin and sends $b$ such that if coin landed on heads $b = 1$ else $b = 0$,
+    \item If $b = 1$ Alice sends to Bob $z \equiv \sqrt{sy} \equiv r \sqrt{y} \pmod{N}$ else she sends $z \equiv \sqrt{s} \equiv r \pmod{N}$,
+    \item Bob accepts if $z^2 = sy^b$.
 \end{enumerate}
 
 If Alice was a cheating prover, and she didn't have the algorithm for
@@ -122,6 +123,7 @@ from Bob,
     \includegraphics[scale=0.6]{assets/images/interactive_coin.png}
     \caption{Interactive public coin proof}
     \label{fig:interactive_coin}
+	\cite{Goldwasser1986, youtubeMOOCLecture1}
     \vspace{0.5cm}
 \end{figure}
 Bob at the end can compute the validity of the proof from Alice with
@@ -134,6 +136,7 @@ the transcript string,
     \includegraphics[scale=0.6]{assets/images/non_interactive_coin.png}
     \caption{Non-interactive public coin proof}
     \label{fig:non_interactive_coin}
+	\cite{Fiat, youtubeMOOCLecture1}
     \vspace{0.5cm}
 \end{figure}
 and Bob can compute the validity of the proof like this
@@ -156,6 +159,7 @@ directed acyclic graph
     \includegraphics[scale=0.25]{assets/images/dag_example.png}
     \caption{Graph representation of arithmetic circuit}
     \label{fig:dag_example}
+	\cite{youtuMOOCLecture3}
     \vspace{0.5cm}
 \end{figure}
 
@@ -221,12 +225,12 @@ This setup procedure has 3 types:
     \item Trusted setup: the setup is of form $Setup(C, r) \rightarrow (pp, vp)$,
           where $r$ is a random value. The random value must be destroyed after
           the setup, because if it is not, the prover can use it to prove a false
-          statement.
+          statement,
     \item Universal trusted setup: the setup is split into two parts. The first
           part takes only $r$ and creates $gp$ (global parameters). This part
           is ran once and the $r$ must be destroyed, due to the same reason as
           in trusted setup. The second part takes $gp$ and $C$ and creates
-          $pp$ and $vp$. This part can be ran for any circuit $C$.
+          $pp$ and $vp$. This part can be ran for any circuit $C$,
     \item Transparent setup: the setup is of form $Setup(C) \rightarrow (pp, vp)$,
           where $C$ is a circuit. This setup does not require any random value,
           hence anyone can verify that the setup is valid.
@@ -264,7 +268,7 @@ of committed polynomials are equal to evaluations of the polynomials, which
 verifier can compute from the public input $x$, proving that the prover's
 polynomials are equal to the verifier's polynomials. Elaboration why evaluation
 at random point is enough to prove that two polynomials are equal can be found
-Appendix \ref{appendix:zero_test}.
+in the following subsection.
 
 To make this process non-interactive, the Fiat-Shamir transform is applied on
 the random values $r_1, r_2, \dots, r_m$. So the proof $\pi$ is a string of
@@ -272,6 +276,26 @@ the random values $r_1, r_2, \dots, r_m$. So the proof $\pi$ is a string of
 Verifier than computes $Verify(vp, x, \pi) = accept/reject$, where $\pi$ is
 a transcript of the interaction between prover and Fiat-Shamir supplied random
 values.
+
+\subsection{Polynomial zero test}
+
+The polynomial zero test is at the heart of the SNARK construction. Given a
+polynomial $f \in \mathbb{F}_p^{\leq d}[X]$, the probability that a random
+element $x \in \mathbb{F}_p$ is a root of $f$ is $d/p$.
+
+\[ \Pr[f(x) = 0] \leq \frac{d}{p} \]
+
+For example, $p = 2^{256}$ and $d = 2^{32}$, the probability that a random
+element $x \in \mathbb{F}_p$ is a root of $f$ is $2^{224}$. This is a negligible
+probability, and we can assume that $f$ is zero polynomial with high
+probability when $f(x) = 0$ for a random $x \in \mathbb{F}_p$.
+
+The generalization of the polynomial zero test for multivariate polynomials is
+known as \textit{SZDL lemma} \cite{Schwartz1980,Zippel1979,Demillo1978}.
+
+This can be used to prove that two polynomials are equal. Given two polynomials
+$f, g$, we can evaluate $h = f - g$ at a random point $x$. If $h(x) = 0$, then
+$f(x) - g(x) = 0 \Longrightarrow f(x) = g(x) \Longrightarrow f = g$ with high probability.
 
 \section{Stealth addresses}
 

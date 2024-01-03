@@ -36,7 +36,6 @@
     \includegraphics[scale=0.65]{assets/assignment.png}
 \end{center}
 \newpage
-\emptypage
 
 % Declaration of honor
 % TODO
@@ -56,15 +55,12 @@
     \renewcommand{\contentsname}{Table of contents}
 \fi
 \tableofcontents{}
-\emptypage
 
 % List of figures
 \listoffigures
-\emptypage
 
 % List of tables
 %\listoftables
-%\emptypage
 
 % List of abbreviations
 \include{pages/abbreviations}
@@ -75,16 +71,14 @@
 % Begin references segment
 \begin{refsegment}
     \include{content/introduction}
-    \emptypage
 
     \include{content/analysis}
-    \emptypage
 
     \include{content/design}
-    \emptypage
 
-    \include{content/future}
-    \emptypage
+    \include{content/conclusion}
+
+    % \include{content/future}
 
     \ifx\FIITlagEN\undefined
     \else
@@ -98,14 +92,10 @@
     \addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
     \addtocontents{toc}{\cftpagenumbersoff{chapter}}
 
-    \emptypage
-
 \end{refsegment}
 
 % Appendix
 \appendix
-
-\include{content/appendix1}
 
 \include{pages/time_schedule}
 
