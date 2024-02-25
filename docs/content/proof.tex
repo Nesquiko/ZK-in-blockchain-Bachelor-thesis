@@ -1,0 +1,94 @@
+\chapter{Proof of security}
+
+In this chapter, the security of the Stealth Address ZKP Scheme is informally proven.
+
+\section{Assumptions}
+
+\subsection{Groth16}
+
+It is assumed that the pairing-based ZK-SNARK system Groth16 has these properties:
+\begin{enumerate}
+    \item Completness - honest prover will always convince honest verifier
+    \item Soundness - dishonest prover will not convince honest verifier
+    \item Zero Knowledge - dishonest verifier will learn nothing more then the truth of the given proposition
+\end{enumerate}
+
+If the completness property would not hold, Bob could be locked out of his stealth
+addresses, because he could not prove to them that he possessed both secrets.
+
+If the soundness would not hold, adversary could forge a false proof, which
+would be verified as true, and thus could gain access to Bob's assets on given
+stealth address.
+
+And finally, if the zero knowledge property would not hold, an adversary could
+learn Bob's identity, hence it would no longer be a stealth address.
+
+\subsection{Trusted Setup}
+
+The setup phase of Groth16 includes a trusted setup in order to generate the
+public parameters. The premise of the trusted setup is that the original parameters
+used to create the public ones are thrown away, if not then the party which
+produced public parameters can forge false proofs, yet the verifier would
+recognize them as valid ones.
+
+In context of this work, if a party creating the circuit didn't delete the
+original parameters, then it could prove malicious statements about ownership
+of the secret values needed to gain control over any stealth address.
+
+
+\subsection{Collision resistant hash function}\label{crhf}
+
+First assumption is that, the used instantiation of a hash function (\textit{H})
+is a collision resistant one. Meaning it is computationally hard to find two
+inputs \textit{a}, \textit{b}, such that
+
+\[ a \neq b \land H(a) = H(b) \]
+
+Otherwise, an adversary could, for example, find a value $x^\prime$,
+such that Bob's secret value $x$ and $x^\prime$ are not equal, but their hashes
+are. Then the $x^\prime$ could be used to gain control over Bob's stealth address,
+if the adversary knew Alice's secret value, or in the case when Alice is a malicious
+actor, she could send assets to Bob's stealth address, but with $x^\prime$ and
+her secret value, could withdraw them without any public proof that she did it.
+
+As showcased earlier, this vulnerability alone is not enough to gain control
+over Bob's stealth address, adversary also must know Alice's secret value to
+gain control over a Bob's stealth address, but only the one she interacted with.
+
+Also, if used hash function is not a collision resistant one, adversary still can not
+discover the identity of Bob, or any of his other stealth addresses.
+
+\subsection{Elliptic Curve Crypthography - Secp256k1}
+
+Next assumption is that the Secp256k1 elliptic curve parameters used in Ethereum
+and Bitcoin\cite{bitcoinSecp256k1Bitcoin} are well-chosen and do not contain any backdoors. Additionally, it is
+assumed that advancements in cryptographic research and technology do not
+compromise the security of Secp256k1.
+
+If not, an adversary could recover Bob's private key and decrypt all of his
+ephemeral keys submitted to the Ephemeral Key Registry contract. The
+adversary would know all Bob's stealth addresses and, also have all secret
+values used to create codes in those stealth addresses. However, with this
+vulnerability alone, the adversary can not control Bob's stealth addresses,
+because he/she is missing the Bob's secret value $x$.
+
+\subsection{Knowledge of recipient's secret value}
+
+If an adversary somehow learns Bob's secret value $x$, he/she does not have enough
+information to control any of Bob's stealth addresses. On the other hand, if Alice,
+or any other sender, would learn Bob's secret value $x$, she could, as in the
+\ref{crhf} steal Bob's assets from the stealth address she interacted with and
+Bob would not have any public proof that it was her.
+
+\subsection{Knowledge of sender's secret value}
+
+If an adversary somehow learns Alice's secret value $c$, the corresponding
+address is still safe, because, the attacker does not know which stealth address
+it is, and if somehow learned it, he/she still does not have Bob's secret value.
+
+\section{Proof}
+
+Given these assumptions, the presented Stealth Address ZKP Scheme can be used to
+send assets to a recipient, without leaking any information about him/her. And
+guarantees to the recipient that only he/she has access to stealth addresses.
+
