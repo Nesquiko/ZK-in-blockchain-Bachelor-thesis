@@ -1,0 +1,3 @@
+[submodule "stealth-wallet/circuits/circomlib"]
+	path = stealth-wallet/circuits/circomlib
+	url = https://github.com/iden3/circomlib.git
