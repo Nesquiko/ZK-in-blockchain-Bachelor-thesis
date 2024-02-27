@@ -13,3 +13,5 @@ main.toc
 main.blg
 main.fdb_latexmk
 circuits/build
+stealth-wallet/cache
+stealth-wallet/out
