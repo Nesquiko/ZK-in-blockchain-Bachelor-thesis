@@ -15,3 +15,5 @@ main.fdb_latexmk
 circuits/build
 stealth-wallet/cache
 stealth-wallet/out
+stealth-wallet-app/.env
+stealth-wallet/.env
