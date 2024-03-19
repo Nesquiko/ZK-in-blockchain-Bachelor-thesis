@@ -20,11 +20,16 @@
     "vite-plugin-solid": "^2.8.2"
   },
   "dependencies": {
+    "@kobalte/core": "^0.12.6",
     "@solidjs/router": "^0.13.0",
     "@types/web3": "^1.2.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
     "ethers": "^6.11.1",
     "snarkjs": "^0.7.3",
     "solid-js": "^1.8.11",
+    "tailwind-merge": "^2.2.2",
+    "tailwindcss-animate": "^1.0.7",
     "web3": "^4.6.0"
   }
 }
