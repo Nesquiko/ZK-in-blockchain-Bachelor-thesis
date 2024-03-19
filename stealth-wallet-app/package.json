@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@solidjs/router": "^0.13.0",
+    "@types/web3": "^1.2.2",
     "ethers": "^6.11.1",
     "snarkjs": "^0.7.3",
     "solid-js": "^1.8.11",

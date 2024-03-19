@@ -1,6 +1,7 @@
 import { Route, Router } from "@solidjs/router";
 import type { Component } from "solid-js";
 import AliceWallet from "./pages/AliceWallet";
+import BobWallet from "./pages/BobWallet";
 
 const App: Component = () => {
   const home = () => {
@@ -17,9 +18,10 @@ const App: Component = () => {
   };
 
   return (
-    <Router>
+    <Router root={(props) => <div class="h-screen">{props.children}</div>}>
       <Route path="/" component={home} />
       <Route path="/alice" component={AliceWallet} />
+      <Route path="/bob" component={BobWallet} />
     </Router>
   );
 };
