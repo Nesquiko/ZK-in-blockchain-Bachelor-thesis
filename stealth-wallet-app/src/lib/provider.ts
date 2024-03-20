@@ -2,16 +2,18 @@ import { Web3, Web3BaseWalletAccount } from "web3";
 
 const web3 = new Web3(import.meta.env.VITE_SEPOLIA_RPC);
 
-interface StealthAddress {
+export interface StealthAddress {
   address: string;
   balance: bigint;
 }
 
-async function fetchBalance(account: Web3BaseWalletAccount): Promise<bigint> {
+export async function fetchBalance(
+  account: Web3BaseWalletAccount,
+): Promise<bigint> {
   return await web3.eth.getBalance(account.address);
 }
 
-async function fetchStealthAddresses(
+export async function fetchStealthAddresses(
   account: Web3BaseWalletAccount,
 ): Promise<StealthAddress[]> {
   return [
@@ -30,6 +32,12 @@ async function fetchStealthAddresses(
     },
   ];
 }
+
+export async function withDrawStealthWallet(
+  stealtWalletAddress: string,
+  withdrawee: Web3BaseWalletAccount,
+  amount: bigint,
+): Promise<void> {}
 
 const META_REGISTRY_ADDRESS = "0x8eC2d4D162E8b34e544D0B129e84698D99914771";
 
@@ -195,11 +203,9 @@ const metaRegistryABI = [
   },
 ];
 
-const metaAddressRegistry = new web3.eth.Contract(
+export const metaAddressRegistry = new web3.eth.Contract(
   metaRegistryABI,
   META_REGISTRY_ADDRESS,
 );
 
 export default web3;
-export { fetchBalance, fetchStealthAddresses, metaAddressRegistry };
-export type { StealthAddress };

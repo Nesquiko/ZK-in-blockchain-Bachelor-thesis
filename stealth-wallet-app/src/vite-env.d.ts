@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_ALICE_PK: string;
   readonly VITE_BOB_PK: string;
   readonly VITE_BOB_PK_2: string;
+  readonly VITE_BOB_PK_3: string;
   readonly VITE_SEPOLIA_RPC: string;
 }
 

@@ -1,24 +1,40 @@
-import { Component, For, Match, Switch, createResource } from "solid-js";
+import { Component, For, Match, Show, Switch, createResource } from "solid-js";
 import web3, {
   type StealthAddress,
   fetchBalance,
   fetchStealthAddresses,
 } from "../lib/provider";
 import WalletHeader from "../components/WalletHeader";
-import { shortenAddress } from "../lib/format";
+import { formatWei, shortenAddress } from "../lib/format";
+import WithdrawDialog from "../components/WithdrawDialog";
 
 const BobsMainWallet: Component = () => {
   const account = web3.eth.accounts.privateKeyToAccount(
     import.meta.env.VITE_BOB_PK,
   );
+
+  const bobsOtherAccounts = [
+    import.meta.env.VITE_BOB_PK_2,
+    import.meta.env.VITE_BOB_PK_3,
+  ].map((pk) => web3.eth.accounts.privateKeyToAccount(pk));
   const [balance] = createResource(account, fetchBalance);
   const [stealthAddresses] = createResource(account, fetchStealthAddresses);
 
   const stealthAddressesListItem = (address: StealthAddress) => {
     return (
-      <div class="flex justify-between text-base gap-8">
-        <span>{shortenAddress(address.address)}</span>
-        <span>{web3.utils.fromWei(address.balance, "ether")} ETH</span>
+      <div class="text-base grid grid-cols-6">
+        <span class="col-span-2">{shortenAddress(address.address)}</span>
+        <span class="text-right col-span-3">
+          {formatWei(address.balance)} ETH
+        </span>
+        <Show when={address.balance !== 0n}>
+          <WithdrawDialog
+            from={address.address}
+            amount={address.balance}
+            withdrawalAccounts={bobsOtherAccounts}
+            onWithdraw={(addr) => console.log("withdrawing to:", addr)}
+          />
+        </Show>
       </div>
     );
   };
@@ -62,7 +78,6 @@ const BobsMainWallet: Component = () => {
   );
 };
 
-// TODO withdraw from into the second pk
 const BobWallet: Component = () => {
   return (
     <div class="p-2 h-screen w-screen">
