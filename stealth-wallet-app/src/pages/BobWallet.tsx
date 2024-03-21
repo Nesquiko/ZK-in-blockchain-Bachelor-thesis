@@ -1,24 +1,22 @@
 import { Component, For, Match, Show, Switch, createResource } from "solid-js";
-import web3, {
+import {
+  web3,
   type StealthAddress,
   fetchBalance,
   fetchStealthAddresses,
+  bobsPrimaryAccount,
+  bobsSecondaryAccounts,
 } from "../lib/provider";
 import WalletHeader from "../components/WalletHeader";
 import { formatWei, shortenAddress } from "../lib/format";
 import WithdrawDialog from "../components/WithdrawDialog";
 
 const BobsMainWallet: Component = () => {
-  const account = web3.eth.accounts.privateKeyToAccount(
-    import.meta.env.VITE_BOB_PK,
+  const [balance] = createResource(bobsPrimaryAccount, fetchBalance);
+  const [stealthAddresses] = createResource(
+    bobsPrimaryAccount,
+    fetchStealthAddresses,
   );
-
-  const bobsOtherAccounts = [
-    import.meta.env.VITE_BOB_PK_2,
-    import.meta.env.VITE_BOB_PK_3,
-  ].map((pk) => web3.eth.accounts.privateKeyToAccount(pk));
-  const [balance] = createResource(account, fetchBalance);
-  const [stealthAddresses] = createResource(account, fetchStealthAddresses);
 
   const stealthAddressesListItem = (address: StealthAddress) => {
     return (
@@ -31,7 +29,7 @@ const BobsMainWallet: Component = () => {
           <WithdrawDialog
             from={address.address}
             amount={address.balance}
-            withdrawalAccounts={bobsOtherAccounts}
+            withdrawalAccounts={bobsSecondaryAccounts}
             onWithdraw={(addr) => console.log("withdrawing to:", addr)}
           />
         </Show>
@@ -81,9 +79,7 @@ const BobsMainWallet: Component = () => {
 const BobWallet: Component = () => {
   return (
     <div class="p-2 h-screen w-screen">
-      <div class="h-full">
-        <BobsMainWallet />
-      </div>
+      <BobsMainWallet />
     </div>
   );
 };

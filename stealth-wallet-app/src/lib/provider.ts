@@ -1,6 +1,30 @@
-import { Web3, Web3BaseWalletAccount } from "web3";
+import { HttpProvider, Web3, Web3BaseWalletAccount } from "web3";
 
-const web3 = new Web3(import.meta.env.VITE_SEPOLIA_RPC);
+export const web3 = import.meta.env.PROD
+  ? new Web3(import.meta.env.VITE_SEPOLIA_RPC)
+  : new Web3(new HttpProvider("http://127.0.0.1:8545"));
+
+export const bobsPrimaryAccount = web3.eth.accounts.privateKeyToAccount(
+  import.meta.env.PROD
+    ? import.meta.env.VITE_BOB_PK
+    : "0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a",
+);
+
+export const bobsSecondaryAccounts = (
+  import.meta.env.PROD
+    ? [import.meta.env.VITE_BOB_PK_2, import.meta.env.VITE_BOB_PK_3]
+    : [
+        "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
+        "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
+      ]
+).map((pk) => web3.eth.accounts.privateKeyToAccount(pk));
+
+export const aliceAccount = web3.eth.accounts.privateKeyToAccount(
+  import.meta.env.PROD
+    ? import.meta.env.VITE_ALICE_PK
+    : "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6",
+);
 
 export interface StealthAddress {
   address: string;
@@ -38,174 +62,3 @@ export async function withDrawStealthWallet(
   withdrawee: Web3BaseWalletAccount,
   amount: bigint,
 ): Promise<void> {}
-
-const META_REGISTRY_ADDRESS = "0x8eC2d4D162E8b34e544D0B129e84698D99914771";
-
-const metaRegistryABI = [
-  {
-    type: "function",
-    name: "BYTES_LENGTH_END_OFFSET",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "EIP_191_PREFIX",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "R_LENGTH_END_OFFSET",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "SIG_LENGTH",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "S_LENGTH_END_OFFSET",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "addressMetaStealthAddress",
-    inputs: [
-      {
-        name: "addr",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "tuple",
-        internalType: "struct MetaStealthAddressRegistry.MetaStealthAddress",
-        components: [
-          {
-            name: "pubKey",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "h",
-            type: "bytes32",
-            internalType: "bytes32",
-          },
-          {
-            name: "signature",
-            type: "bytes",
-            internalType: "bytes",
-          },
-        ],
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "setMetaStealthAddress",
-    inputs: [
-      {
-        name: "newMetaAddress",
-        type: "tuple",
-        internalType: "struct MetaStealthAddressRegistry.MetaStealthAddress",
-        components: [
-          {
-            name: "pubKey",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "h",
-            type: "bytes32",
-            internalType: "bytes32",
-          },
-          {
-            name: "signature",
-            type: "bytes",
-            internalType: "bytes",
-          },
-        ],
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "signaturePrefix",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    stateMutability: "pure",
-  },
-  {
-    type: "error",
-    name: "MetaStealthAddressRegistry__InvalidSignature",
-    inputs: [],
-  },
-  {
-    type: "error",
-    name: "MetaStealthAddressRegistry__UnauthorizedSender",
-    inputs: [],
-  },
-  {
-    type: "error",
-    name: "MetaStealthAddressRegistry__UnauthorizedSigner",
-    inputs: [],
-  },
-];
-
-export const metaAddressRegistry = new web3.eth.Contract(
-  metaRegistryABI,
-  META_REGISTRY_ADDRESS,
-);
-
-export default web3;

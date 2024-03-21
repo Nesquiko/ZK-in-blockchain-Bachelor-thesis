@@ -1,5 +1,5 @@
 import { Component, Match, Resource, Switch } from "solid-js";
-import web3 from "../lib/provider";
+import { web3 } from "../lib/provider";
 
 interface WalletHeaderProps {
   name: string;
