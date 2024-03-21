@@ -4,7 +4,7 @@ import { splitProps } from "solid-js";
 import { Dialog as DialogPrimitive } from "@kobalte/core";
 import { TbX } from "solid-icons/tb";
 
-import { cn } from "../../lib/utils";
+import { cn } from "../../lib/solid-ui-utils";
 
 const Dialog = DialogPrimitive.Root;
 
