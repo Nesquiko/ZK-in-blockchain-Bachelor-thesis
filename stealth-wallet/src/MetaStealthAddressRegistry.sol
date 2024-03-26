@@ -55,7 +55,7 @@ contract MetaStealthAddressRegistry {
     }
 
     function ethSignedDataHash(bytes32 metaAddressHash) private pure returns (bytes32) {
-        return keccak256(abi.encodePacked(EIP_191_PREFIX, metaAddressHash));
+        return keccak256(abi.encodePacked(signaturePrefix(), metaAddressHash));
     }
 
     function splitSignature(bytes memory signature) private pure returns (uint8 v, bytes32 r, bytes32 s) {
@@ -68,7 +68,7 @@ contract MetaStealthAddressRegistry {
         return (v, r, s);
     }
 
-    function signaturePrefix() external pure returns (string memory) {
+    function signaturePrefix() public pure returns (string memory) {
         return EIP_191_PREFIX;
     }
 }
