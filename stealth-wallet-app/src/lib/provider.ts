@@ -1,8 +1,23 @@
-import { HttpProvider, Web3, Web3BaseWalletAccount } from "web3";
+import {
+  HttpProvider,
+  MatchPrimitiveType,
+  Web3,
+  Web3BaseWalletAccount,
+} from "web3";
+import { metaStealthRegistryABI } from "./contract-abis";
+
+const metaStealthRegistryAddress = import.meta.env.PROD
+  ? "" // address on sepolia
+  : "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // address on local anvil
 
 export const web3 = import.meta.env.PROD
   ? new Web3(import.meta.env.VITE_SEPOLIA_RPC)
   : new Web3(new HttpProvider("http://127.0.0.1:8545"));
+
+export const metaStealthRegistry = new web3.eth.Contract(
+  metaStealthRegistryABI,
+  metaStealthRegistryAddress,
+);
 
 export const bobsPrimaryAccount = web3.eth.accounts.privateKeyToAccount(
   import.meta.env.PROD
@@ -35,6 +50,20 @@ export async function fetchBalance(
   account: Web3BaseWalletAccount,
 ): Promise<bigint> {
   return await web3.eth.getBalance(account.address);
+}
+
+export interface MetaStealthAddress {
+  pubKey: MatchPrimitiveType<"bytes", unknown>;
+  h: MatchPrimitiveType<"bytes32", unknown>;
+  signature: MatchPrimitiveType<"bytes", unknown>;
+}
+
+export async function fetchMetaStealthAddres(
+  address: string,
+): Promise<MetaStealthAddress> {
+  return await metaStealthRegistry.methods
+    .addressMetaStealthAddress(address)
+    .call();
 }
 
 export async function fetchStealthAddresses(
