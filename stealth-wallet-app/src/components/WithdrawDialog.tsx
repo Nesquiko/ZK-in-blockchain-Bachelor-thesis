@@ -66,7 +66,7 @@ const WithdrawDialog: Component<WithdrawDialogProps> = (props) => {
         <DialogFooter>
           <Button
             type="submit"
-            class="bg-violet-500"
+            class="bg-violet-500 hover:bg-violet-700/90"
             onClick={() => props.onWithdraw(choosenAddress())}
           >
             Withdraw
