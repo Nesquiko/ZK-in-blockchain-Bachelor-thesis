@@ -1,7 +1,7 @@
 import Web3, { HttpProvider } from "web3";
-import { privateToPublic, toBuffer } from "ethereumjs-util";
 import { secp256k1 } from "ethereum-cryptography/secp256k1.js";
 import { metaStealthRegistryABI } from "../src/lib/contract-abis";
+import { privateToPublic } from "@ethereumjs/util";
 
 const web3 = new Web3(new HttpProvider("http://127.0.0.1:8545"));
 
@@ -10,13 +10,13 @@ const META_STEALTH_REGISTRY_ADDRESS =
 
 const PRIVATE_KEY =
   "0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6";
-const PUBLIC_KEY = privateToPublic(toBuffer(PRIVATE_KEY));
+const PUBLIC_KEY = privateToPublic(Buffer.from(PRIVATE_KEY));
 const HASH_OF_SECRET =
   "0x2D2EDD9BFE1CC6A328E52CC8989C4F27955F68B9BB0EC136D45100CE9C6C61F4"; // secret is 0xb7cf302145348387b9e69fde82d8e634a0f87
 
 interface MetaStealthAddress {
-  pubKey: Uint8Array; // Represents bytes in TypeScript
-  h: string; // Assuming bytes32 is a 32-byte hex representation
+  pubKey: Uint8Array;
+  h: string;
   signature: Uint8Array;
 }
 
@@ -28,7 +28,7 @@ metaStealthRegistry.handleRevert = true;
 
 const dataToSign = web3.utils.keccak256(
   web3.utils.encodePacked(
-    { value: "0x" + PUBLIC_KEY.toString("hex"), type: "bytes" },
+    { value: "0x" + Buffer.from(PUBLIC_KEY).toString("hex"), type: "bytes" },
     { value: HASH_OF_SECRET, type: "bytes32" },
   ),
 );
