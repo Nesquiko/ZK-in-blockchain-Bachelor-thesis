@@ -5,6 +5,9 @@ import {
   Web3BaseWalletAccount,
 } from "web3";
 import { metaStealthRegistryABI } from "./contract-abis";
+import { poseidon } from "./poseidon/poseidon";
+import { getRandomBytesSync } from "ethereum-cryptography/random.js";
+import { encrypt } from "./crypto";
 
 const metaStealthRegistryAddress = import.meta.env.PROD
   ? "" // address on sepolia
@@ -66,6 +69,52 @@ export async function fetchMetaStealthAddres(
     .call();
 }
 
+export async function sendToNewStealthWallet(
+  deployer: Web3BaseWalletAccount,
+  amount: bigint,
+  metaAddress: MetaStealthAddress,
+): Promise<string> {
+  const senderSecret = Buffer.from(getRandomBytesSync(32));
+  // TODO calculate where will the new StealthWallet be deployed, and encrypt
+  // it with the secret. Then push the encryption to registry
+  // https://swende.se/blog/Ethereum_quirks_and_vulns.html
+  const encrypted = await encrypt(senderSecret, metaAddress.pubKey.toString());
+
+  const code =
+    "0x" +
+    poseidon([
+      BigInt("0x" + senderSecret.toString("hex")),
+      BigInt(metaAddress.h.toString()),
+    ])
+      .toString(16)
+      .padStart(64, "0");
+
+  // TODO if I can calculate before where the contract will be deployed, I don't
+  // have to manually deploy it and use a StealthWalletCreator contract to
+  // deploy it and also to submit encryption to registry
+  const contract = await (await fetch("/StealthWallet.json")).json();
+  const newStealthWallet = new web3.eth.Contract(contract.abi);
+  const contractDeployer = newStealthWallet.deploy({
+    data: contract.bytecode.object,
+    arguments: [code, "TODO GET VERIFIER ADDRESS"],
+  });
+  const gas = await contractDeployer.estimateGas({
+    from: deployer.address,
+  });
+
+  try {
+    const txRec = await contractDeployer.send({
+      from: deployer.address,
+      value: amount.toString(),
+      gas: gas.toString(),
+      gasPrice: web3.utils.toWei("10", "gwei"),
+    });
+    return txRec.options.address!;
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
 export async function fetchStealthAddresses(
   account: Web3BaseWalletAccount,
 ): Promise<StealthAddress[]> {
@@ -85,9 +134,3 @@ export async function fetchStealthAddresses(
     },
   ];
 }
-
-export async function withDrawStealthWallet(
-  stealtWalletAddress: string,
-  withdrawee: Web3BaseWalletAccount,
-  amount: bigint,
-): Promise<void> {}

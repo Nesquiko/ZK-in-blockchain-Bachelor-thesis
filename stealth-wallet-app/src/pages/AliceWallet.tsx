@@ -12,6 +12,7 @@ import {
   aliceAccount,
   fetchBalance,
   fetchMetaStealthAddres,
+  sendToNewStealthWallet,
 } from "../lib/provider";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
@@ -21,6 +22,7 @@ import {
   CalloutContent,
   CalloutTitle,
 } from "../components/ui/callout";
+import { toWei } from "../lib/convert";
 
 const ErrorMetaAddressNotFound = new Error("meta stealth address not found");
 
@@ -33,6 +35,7 @@ const AliceWallet: Component = () => {
   const [fetchError, setFetchError] = createSignal<
     "not found" | "different" | undefined
   >(undefined);
+  const [weiSendAmount, setWeiSendAmount] = createSignal<bigint>(0n);
 
   const fetchRecipientsMetaStealthAddres = async (address: string) => {
     await fetchMetaStealthAddres(address)
@@ -44,12 +47,22 @@ const AliceWallet: Component = () => {
         return setRecipientMetaAddress(metaAddr);
       })
       .catch((err) => {
+        setRecipientMetaAddress(undefined);
         if (err === ErrorMetaAddressNotFound) {
           setFetchError("not found");
         } else {
           setFetchError("different");
         }
       });
+  };
+
+  // TODO remove this
+  fetchRecipientsMetaStealthAddres(
+    "0x7d577a597B2742b498Cb5Cf0C26cDCD726d39E6e",
+  );
+
+  const onSend = async (weiAmount: bigint, metaAddr: MetaStealthAddress) => {
+    await sendToNewStealthWallet(aliceAccount, weiAmount, metaAddr);
   };
 
   const findRecipientMetaAddressForm = () => {
@@ -98,16 +111,33 @@ const AliceWallet: Component = () => {
     );
   };
 
-  // 0x7d577a597B2742b498Cb5Cf0C26cDCD726d39E6e
+  // bobs address: 0x7d577a597B2742b498Cb5Cf0C26cDCD726d39E6e
   // TODO
   // 1. Stealth wallet
   // 2. Ephemeral key registry
   // 3. Submitter contract?? one tx to deploy contract and to submit into registry
   const sentEthForm = (metaAddr: MetaStealthAddress) => {
     return (
-      <div>
-        <Button class="text-xl bg-emerald-500 hover:bg-emerald-700/90">
-          Send to stealth wallet
+      <div class="space-y-2">
+        <Label class="text-lg w-60" for="amount">
+          Amount to send
+        </Label>
+        <Input
+          id="amount"
+          class="text-lg"
+          type="number"
+          inputmode="numeric"
+          placeholder="0.01 ether"
+          onChange={(e) => {
+            const weiAmount = toWei(e.target.value);
+            setWeiSendAmount(weiAmount);
+          }}
+        />
+        <Button
+          class="text-xl bg-emerald-500 hover:bg-emerald-700/90"
+          onClick={() => onSend(weiSendAmount(), metaAddr)}
+        >
+          Send
         </Button>
       </div>
     );
@@ -123,11 +153,11 @@ const AliceWallet: Component = () => {
           colorCls="bg-green-300"
         />
         {findRecipientMetaAddressForm()}
-      </div>
 
-      <Show when={recipientMetaAddress()} keyed>
-        {sentEthForm}
-      </Show>
+        <Show when={recipientMetaAddress()} keyed>
+          {sentEthForm}
+        </Show>
+      </div>
     </div>
   );
 };
