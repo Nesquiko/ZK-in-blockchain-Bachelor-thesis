@@ -24,6 +24,7 @@
     "@kobalte/core": "^0.12.6",
     "@solidjs/router": "^0.13.0",
     "@types/web3": "^1.2.2",
+    "big-integer": "^1.6.52",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "ethereum-cryptography": "^2.1.3",
