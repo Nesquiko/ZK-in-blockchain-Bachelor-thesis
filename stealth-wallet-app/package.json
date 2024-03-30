@@ -5,7 +5,8 @@
   "description": "",
   "scripts": {
     "start": "vite",
-    "dev": "vite",
+    "dev": "npm run anvil & vite",
+    "anvil": "anvil --state ./dev-anvil-chain.json & bun run ./scripts/setup-meta-stealth-address.ts",
     "build": "tsc --noEmit && vite build",
     "serve": "vite preview"
   },
