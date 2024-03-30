@@ -29,7 +29,7 @@ test("encrypt and then decrypt", async () => {
   );
 
   expect(decrypted.walletAddress).toBe(futureWalletAddress);
-  expect(decrypted.senderSecret.toString("hex")).toBe(
+  expect(decrypted.senderSecret.toString(16)).toBe(
     senderSecret.toString("hex"),
   );
 });

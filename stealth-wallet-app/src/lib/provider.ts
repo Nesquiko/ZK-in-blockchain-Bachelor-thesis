@@ -10,8 +10,21 @@ import {
 } from "./contract-abis";
 import { poseidon } from "./poseidon/poseidon";
 import { getRandomBytesSync } from "ethereum-cryptography/random.js";
-import { EncryptedEphemeralKey, encryptEphemeralKey } from "./crypto";
+import {
+  DencryptedEphemeralKey,
+  EncryptedEphemeralKey,
+  dencryptEphemeralKey,
+  encryptEphemeralKey,
+} from "./crypto";
 import { getContractAddress } from "@ethersproject/address";
+import {
+  SerializedStealthWallet,
+  readLasEphemeralKeyIndex,
+  readStealthWallets,
+  saveLastEphemeralKeyIndex,
+  saveStealthWallets,
+} from "./local-storage";
+import { strip0x } from "./convert";
 
 const verifierAddress = import.meta.env.PROD
   ? "" // TODO address on sepolia
@@ -61,15 +74,20 @@ export const aliceAccount = web3.eth.accounts.privateKeyToAccount(
     : "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6",
 );
 
-export interface StealthAddress {
+export interface StealthWallet {
   address: string;
   balance: bigint;
+  senderSecret: bigint;
 }
 
 export async function fetchBalance(
   account: Web3BaseWalletAccount,
 ): Promise<bigint> {
-  return await web3.eth.getBalance(account.address);
+  return addressBalance(account.address);
+}
+
+async function addressBalance(address: string) {
+  return await web3.eth.getBalance(address);
 }
 
 export interface MetaStealthAddress {
@@ -103,7 +121,7 @@ export async function sendToNewStealthWallet(
     "0x" +
     poseidon([
       BigInt("0x" + senderSecret.toString("hex")),
-      BigInt(metaAddress.h.toString()),
+      BigInt("0x" + metaAddress.h.toString()),
     ])
       .toString(16)
       .padStart(64, "0");
@@ -154,24 +172,88 @@ async function submitEphemeralKey(
   });
 }
 
+function readSavedStealthWallets(): StealthWallet[] {
+  const wallets = readStealthWallets();
+  return wallets.map((addr) => {
+    return {
+      address: addr.address,
+      senderSecret: BigInt(addr.senderSecret),
+      balance: BigInt(addr.balance),
+    };
+  });
+}
+
+function updateSavedStealthWallets(wallets: StealthWallet[]) {
+  const serialized: SerializedStealthWallet[] = wallets.map((w) => {
+    return {
+      address: w.address,
+      senderSecret: w.senderSecret.toString(10),
+      balance: w.balance.toString(10),
+    };
+  });
+  saveStealthWallets(serialized);
+}
+
+const BATCH_SIZE = 20n;
 export async function fetchStealthAddresses(
   account: Web3BaseWalletAccount,
-): Promise<StealthAddress[]> {
-  return [
-    { address: "0xAb988E86af062772227994030A4D448EEE783617", balance: 0n },
-    {
-      address: "0x156d4C4Fd135Ba1ff36D995570599F5330bC2Aa3",
-      balance: 1000000000000000000n,
-    },
-    {
-      address: "0xA2e1534F3Ad88161525acBDa43ED7f6f19D561Da",
-      balance: 431512512412510000n,
-    },
-    {
-      address: "0x099Ad3e6C13810F171d8bed8581828416e4689F6",
-      balance: 22125125126136160000n,
-    },
-  ];
+): Promise<StealthWallet[]> {
+  let lastIndex = readLasEphemeralKeyIndex();
+  const totalKeys = await ephemeralKeyRegistry.methods
+    .totalKeys()
+    .call({ from: account.address });
+
+  let total = BigInt(totalKeys.toString());
+  const newWallets = readSavedStealthWallets();
+  while (lastIndex < total) {
+    const eks = await ephemeralKeyRegistry.methods
+      .getKeysBatch(lastIndex, BATCH_SIZE)
+      .call({ from: account.address });
+    total = BigInt(eks[1].toString());
+
+    const decrypted = await filterAccountsAddresses(account, eks[0]);
+    for (const dec of decrypted) {
+      const wallet = await convertDecryptedEphemeralKey(dec);
+      newWallets.push(wallet);
+    }
+    lastIndex += BATCH_SIZE;
+  }
+  newWallets.sort((a, b) => Number(b.balance - a.balance));
+
+  saveLastEphemeralKeyIndex(total);
+  updateSavedStealthWallets(newWallets);
+
+  return newWallets;
+}
+
+interface Web3jsEphemeralKey {
+  iv: MatchPrimitiveType<"bytes16", unknown>;
+  ephemPublicKey1: MatchPrimitiveType<"bytes1", unknown>;
+  ephemPublicKey2: MatchPrimitiveType<"bytes32", unknown>;
+  ephemPublicKey3: MatchPrimitiveType<"bytes32", unknown>;
+  mac: MatchPrimitiveType<"bytes32", unknown>;
+  ciphertext1: MatchPrimitiveType<"bytes32", unknown>;
+  ciphertext2: MatchPrimitiveType<"bytes32", unknown>;
+}
+
+async function filterAccountsAddresses(
+  account: Web3BaseWalletAccount,
+  eks: Web3jsEphemeralKey[],
+): Promise<DencryptedEphemeralKey[]> {
+  const ret = new Array<DencryptedEphemeralKey>();
+
+  for (const web3Ek of eks) {
+    try {
+      const ek = convertEphemeralKey(web3Ek);
+      const decrypted = await dencryptEphemeralKey(
+        ek,
+        Buffer.from(strip0x(account.privateKey), "hex"),
+      );
+      ret.push(decrypted);
+    } catch (e) {}
+  }
+
+  return ret;
 }
 
 async function contractDeploymentAddress(
@@ -183,4 +265,27 @@ async function contractDeploymentAddress(
     nonce: nonce,
   });
   return futureAddress;
+}
+
+function convertEphemeralKey(ek: Web3jsEphemeralKey): EncryptedEphemeralKey {
+  return {
+    iv: Buffer.from(strip0x(ek.iv.toString()), "hex"),
+    ephemPublicKey1: Buffer.from(strip0x(ek.ephemPublicKey1.toString()), "hex"),
+    ephemPublicKey2: Buffer.from(strip0x(ek.ephemPublicKey2.toString()), "hex"),
+    ephemPublicKey3: Buffer.from(strip0x(ek.ephemPublicKey3.toString()), "hex"),
+    mac: Buffer.from(strip0x(ek.mac.toString()), "hex"),
+    ciphertext1: Buffer.from(strip0x(ek.ciphertext1.toString()), "hex"),
+    ciphertext2: Buffer.from(strip0x(ek.ciphertext2.toString()), "hex"),
+  };
+}
+
+async function convertDecryptedEphemeralKey(
+  ek: DencryptedEphemeralKey,
+): Promise<StealthWallet> {
+  const balance = await addressBalance(ek.walletAddress);
+  return {
+    address: "0x" + ek.walletAddress,
+    balance,
+    senderSecret: ek.senderSecret,
+  };
 }

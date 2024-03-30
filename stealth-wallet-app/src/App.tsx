@@ -1,7 +1,7 @@
 import { Route, Router } from "@solidjs/router";
 import type { Component } from "solid-js";
 import AliceWallet from "./pages/AliceWallet";
-import BobWallet from "./pages/BobWallet";
+import BobsWallet from "./pages/BobWallet";
 import { Toaster } from "./components/ui/toast";
 
 const App: Component = () => {
@@ -29,7 +29,7 @@ const App: Component = () => {
     >
       <Route path="/" component={home} />
       <Route path="/alice" component={AliceWallet} />
-      <Route path="/bob" component={BobWallet} />
+      <Route path="/bob" component={BobsWallet} />
     </Router>
   );
 };

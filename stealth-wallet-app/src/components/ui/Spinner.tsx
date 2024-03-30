@@ -10,7 +10,7 @@ const Spinner: Component<SpinnerProps> = (props) => {
   const colorCls = props.colorCls ? props.colorCls : "fill-sky-600";
 
   return (
-    <div class="flex h-screen items-center justify-center" role="status">
+    <div class="flex items-center justify-center" role="status">
       <svg
         aria-hidden="true"
         style={{

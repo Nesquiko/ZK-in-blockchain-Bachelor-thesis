@@ -1,5 +1,5 @@
 import * as eccrypto from "eccrypto";
-import { stripOx } from "./convert";
+import { strip0x } from "./convert";
 
 export interface EncryptedEphemeralKey {
   iv: Buffer;
@@ -16,8 +16,8 @@ export async function encryptEphemeralKey(
   walletAddress: string,
   pubKey: string,
 ): Promise<EncryptedEphemeralKey> {
-  pubKey = stripOx(pubKey);
-  walletAddress = stripOx(walletAddress);
+  pubKey = strip0x(pubKey);
+  walletAddress = strip0x(walletAddress);
 
   const pk = Buffer.from("04" + pubKey, "hex");
   const ek = Buffer.concat([senderSecret, Buffer.from(walletAddress, "hex")]);
@@ -27,7 +27,7 @@ export async function encryptEphemeralKey(
 }
 
 export interface DencryptedEphemeralKey {
-  senderSecret: Buffer;
+  senderSecret: bigint;
   walletAddress: string;
 }
 
@@ -37,7 +37,7 @@ export async function dencryptEphemeralKey(
 ): Promise<DencryptedEphemeralKey> {
   const decrypted = await eccrypto.decrypt(privateKey, toEcies(ek));
   return {
-    senderSecret: decrypted.subarray(0, 32),
+    senderSecret: BigInt("0x" + decrypted.subarray(0, 32).toString("hex")),
     walletAddress: decrypted.subarray(32).toString("hex"),
   };
 }

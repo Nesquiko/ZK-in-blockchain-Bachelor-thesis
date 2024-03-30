@@ -3,7 +3,7 @@ import { secp256k1 } from "ethereum-cryptography/secp256k1.js";
 import { metaStealthRegistryABI } from "../src/lib/contract-abis";
 import { privateToPublic } from "@ethereumjs/util";
 import { bobsPrimaryAccount } from "../src/lib/provider";
-import { stripOx } from "../src/lib/convert";
+import { strip0x } from "../src/lib/convert";
 
 const web3 = new Web3(new HttpProvider("http://127.0.0.1:8545"));
 
@@ -11,7 +11,7 @@ const META_STEALTH_REGISTRY_ADDRESS =
   "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const PRIVATE_KEY = bobsPrimaryAccount.privateKey;
-const PUBLIC_KEY = privateToPublic(Buffer.from(stripOx(PRIVATE_KEY), "hex"));
+const PUBLIC_KEY = privateToPublic(Buffer.from(strip0x(PRIVATE_KEY), "hex"));
 const HASH_OF_SECRET =
   "0x2778f900758cc46e051040641348de3dacc6d2a31e2963f22cbbfb8f65464241"; // secret is 10
 

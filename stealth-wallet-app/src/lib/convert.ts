@@ -9,7 +9,7 @@ export function toWei(amount?: string): bigint {
   }
 }
 
-export function stripOx(s: string) {
+export function strip0x(s: string) {
   if (s.startsWith("0x")) return s.slice(2);
   return s;
 }
