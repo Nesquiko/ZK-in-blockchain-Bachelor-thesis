@@ -1,7 +1,7 @@
 import * as eccrypto from "eccrypto";
 import { stripOx } from "./convert";
 
-interface EncryptedEphemeralKey {
+export interface EncryptedEphemeralKey {
   iv: Buffer;
   ephemPublicKey1: Buffer;
   ephemPublicKey2: Buffer;
@@ -26,7 +26,7 @@ export async function encryptEphemeralKey(
   return toEncryptedEphemeralKey(encrypted);
 }
 
-interface DencryptedEphemeralKey {
+export interface DencryptedEphemeralKey {
   senderSecret: Buffer;
   walletAddress: string;
 }
@@ -48,8 +48,8 @@ function toEncryptedEphemeralKey(
   return {
     iv: encrypted.iv, // 16 bytes
     ephemPublicKey1: encrypted.ephemPublicKey.subarray(0, 1), // 1 byte
-    ephemPublicKey2: encrypted.ephemPublicKey.subarray(1, 32), // 32 bytes
-    ephemPublicKey3: encrypted.ephemPublicKey.subarray(32), // 32 bytes
+    ephemPublicKey2: encrypted.ephemPublicKey.subarray(1, 33), // 32 bytes
+    ephemPublicKey3: encrypted.ephemPublicKey.subarray(33), // 32 bytes
     mac: encrypted.mac, // 32 bytes
     // senderSecret has 32 bytes and walletAddress has 20 bytes,
     // so the length of the ciphertext will not change, because the length

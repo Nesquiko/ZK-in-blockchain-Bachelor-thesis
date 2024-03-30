@@ -23,11 +23,14 @@ import {
   CalloutTitle,
 } from "../components/ui/callout";
 import { toWei } from "../lib/convert";
+import { isValidAddress } from "../lib/validation";
+import { showToast } from "../components/ui/toast";
+import { shortenAddress } from "../lib/format";
 
 const ErrorMetaAddressNotFound = new Error("meta stealth address not found");
 
 const AliceWallet: Component = () => {
-  const [balance] = createResource(aliceAccount, fetchBalance);
+  const [balance, { refetch }] = createResource(aliceAccount, fetchBalance);
   const [recipient, setRecipient] = createSignal<string | undefined>(undefined);
   const [recipientMetaAddress, setRecipientMetaAddress] = createSignal<
     MetaStealthAddress | undefined
@@ -35,9 +38,11 @@ const AliceWallet: Component = () => {
   const [fetchError, setFetchError] = createSignal<
     "not found" | "different" | undefined
   >(undefined);
-  const [weiSendAmount, setWeiSendAmount] = createSignal<bigint>(0n);
+  const [ethAmount, setEthAmount] = createSignal<string | undefined>(undefined);
+  const [loading, setLoading] = createSignal(false);
 
   const fetchRecipientsMetaStealthAddres = async (address: string) => {
+    setLoading(true);
     await fetchMetaStealthAddres(address)
       .then((metaAddr) => {
         if (metaAddr.pubKey === "0x") {
@@ -54,15 +59,32 @@ const AliceWallet: Component = () => {
           setFetchError("different");
         }
       });
+    setLoading(false);
   };
 
-  // TODO remove this
-  fetchRecipientsMetaStealthAddres(
-    "0x7d577a597B2742b498Cb5Cf0C26cDCD726d39E6e",
-  );
-
-  const onSend = async (weiAmount: bigint, metaAddr: MetaStealthAddress) => {
+  const onSend = async (
+    ethAmount: string | undefined,
+    metaAddr: MetaStealthAddress,
+  ) => {
+    const weiAmount = toWei(ethAmount);
+    if (weiAmount === 0n) {
+      return;
+    }
+    setLoading(true);
     await sendToNewStealthWallet(aliceAccount, weiAmount, metaAddr);
+    refetch();
+    const title = "Transaction successful!";
+    const description = `Stealth transfer of ${ethAmount} ETH to ${shortenAddress(recipient())} was successful!`;
+    setEthAmount(undefined);
+    setRecipient(undefined);
+    setRecipientMetaAddress(undefined);
+    setLoading(false);
+    showToast({
+      title,
+      description,
+      icon: <i class="fa-solid fa-circle-check fa-lg text-emerald-500"></i>,
+      duration: 4000,
+    });
   };
 
   const findRecipientMetaAddressForm = () => {
@@ -71,24 +93,29 @@ const AliceWallet: Component = () => {
         <Label class="text-lg w-60" for="recipient">
           Recipient's address
         </Label>
-        <Input
-          class="text-lg"
-          maxLength={42}
-          id="recipient"
-          placeholder="0x1234..."
-          onChange={(e) => setRecipient(e.target.value)}
-        />
-        <Button
-          class="text-lg bg-emerald-500 hover:bg-emerald-700/90"
-          onClick={() => {
-            if (recipient() === undefined) {
-              return;
-            }
-            fetchRecipientsMetaStealthAddres(recipient()!);
-          }}
-        >
-          Find
-        </Button>
+        <div class="md:flex gap-4 space-y-2 md:space-y-0">
+          <Input
+            class="text-lg"
+            maxLength={42}
+            id="recipient"
+            placeholder="0x1234..."
+            value={recipient() ? recipient() : ""}
+            onInput={(e) => setRecipient(e.target.value)}
+          />
+          <Button
+            class="text-lg w-20 bg-emerald-500 hover:bg-emerald-700/90"
+            loading={loading()}
+            disabled={!isValidAddress(recipient())}
+            onClick={() => {
+              if (recipient() === undefined) {
+                return;
+              }
+              fetchRecipientsMetaStealthAddres(recipient()!);
+            }}
+          >
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </Button>
+        </div>
         <Switch>
           <Match when={fetchError() === "not found"}>
             <Callout variant="warning">
@@ -111,11 +138,6 @@ const AliceWallet: Component = () => {
     );
   };
 
-  // bobs address: 0x7d577a597B2742b498Cb5Cf0C26cDCD726d39E6e
-  // TODO
-  // 1. Stealth wallet
-  // 2. Ephemeral key registry
-  // 3. Submitter contract?? one tx to deploy contract and to submit into registry
   const sentEthForm = (metaAddr: MetaStealthAddress) => {
     return (
       <div class="space-y-2">
@@ -128,14 +150,14 @@ const AliceWallet: Component = () => {
           type="number"
           inputmode="numeric"
           placeholder="0.01 ether"
-          onChange={(e) => {
-            const weiAmount = toWei(e.target.value);
-            setWeiSendAmount(weiAmount);
-          }}
+          value={ethAmount() ? ethAmount() : ""}
+          onInput={(e) => setEthAmount(e.target.value)}
         />
         <Button
-          class="text-xl bg-emerald-500 hover:bg-emerald-700/90"
-          onClick={() => onSend(weiSendAmount(), metaAddr)}
+          class="text-xl w-full bg-emerald-500 hover:bg-emerald-700/90"
+          onClick={() => onSend(ethAmount(), metaAddr)}
+          loading={loading()}
+          disabled={!ethAmount()}
         >
           Send
         </Button>

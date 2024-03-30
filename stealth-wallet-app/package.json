@@ -5,8 +5,8 @@
   "description": "",
   "scripts": {
     "start": "vite",
-    "dev": "npm run anvil & vite",
-    "anvil": "anvil --state ./dev-anvil-chain.json & bun run ./scripts/setup-meta-stealth-address.ts",
+    "dev": "anvil --state ./dev-anvil-chain.json & vite",
+    "setup-bob": "bun run ./scripts/setup-meta-stealth-address.ts",
     "build": "tsc --noEmit && vite build",
     "serve": "vite preview",
     "test": "vitest"
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@ethereumjs/util": "^9.0.3",
+    "@ethersproject/address": "^5.7.0",
     "@fortawesome/fontawesome-free": "^6.5.1",
     "@kobalte/core": "^0.12.6",
     "@solidjs/router": "^0.13.0",

@@ -1,10 +1,11 @@
 import type { Component, ComponentProps } from "solid-js";
-import { splitProps } from "solid-js";
+import { Show, splitProps } from "solid-js";
 
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 
 import { cn } from "../../lib/solid-ui-utils";
+import Spinner from "./Spinner";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -37,18 +38,26 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends ComponentProps<"button">,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  disabled?: boolean;
+  loading?: boolean;
+}
 
 const Button: Component<ButtonProps> = (props) => {
   const [, rest] = splitProps(props, ["variant", "size", "class"]);
   return (
     <button
+      disabled={props.disabled || props.loading}
       class={cn(
         buttonVariants({ variant: props.variant, size: props.size }),
         props.class,
       )}
       {...rest}
-    />
+    >
+      <Show when={props.loading} fallback={props.children}>
+        <Spinner remSize={1.5} colorCls="fill-gray-600" />
+      </Show>
+    </button>
   );
 };
 

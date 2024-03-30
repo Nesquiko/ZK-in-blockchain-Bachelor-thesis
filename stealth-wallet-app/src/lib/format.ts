@@ -1,6 +1,7 @@
 import { web3 } from "./provider";
 
-export function shortenAddress(address: string): string {
+export function shortenAddress(address?: string): string {
+  if (!address) return "";
   if (!address.startsWith("0x")) {
     return address;
   }

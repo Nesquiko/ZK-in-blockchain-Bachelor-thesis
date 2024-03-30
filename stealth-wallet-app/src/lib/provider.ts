@@ -4,14 +4,26 @@ import {
   Web3,
   Web3BaseWalletAccount,
 } from "web3";
-import { metaStealthRegistryABI } from "./contract-abis";
+import {
+  ephemeralKeyRegistryAbi,
+  metaStealthRegistryABI,
+} from "./contract-abis";
 import { poseidon } from "./poseidon/poseidon";
 import { getRandomBytesSync } from "ethereum-cryptography/random.js";
-import { encrypt } from "./crypto";
+import { EncryptedEphemeralKey, encryptEphemeralKey } from "./crypto";
+import { getContractAddress } from "@ethersproject/address";
+
+const verifierAddress = import.meta.env.PROD
+  ? "" // TODO address on sepolia
+  : "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"; // address on local anvil
 
 const metaStealthRegistryAddress = import.meta.env.PROD
-  ? "" // address on sepolia
+  ? "" // TODO address on sepolia
   : "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // address on local anvil
+
+const ephemeralKeyRegistryAddress = import.meta.env.PROD
+  ? "" // TODO address on sepolia
+  : "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // address on local anvil
 
 export const web3 = import.meta.env.PROD
   ? new Web3(import.meta.env.VITE_SEPOLIA_RPC)
@@ -20,6 +32,11 @@ export const web3 = import.meta.env.PROD
 export const metaStealthRegistry = new web3.eth.Contract(
   metaStealthRegistryABI,
   metaStealthRegistryAddress,
+);
+
+export const ephemeralKeyRegistry = new web3.eth.Contract(
+  ephemeralKeyRegistryAbi,
+  ephemeralKeyRegistryAddress,
 );
 
 export const bobsPrimaryAccount = web3.eth.accounts.privateKeyToAccount(
@@ -73,12 +90,14 @@ export async function sendToNewStealthWallet(
   deployer: Web3BaseWalletAccount,
   amount: bigint,
   metaAddress: MetaStealthAddress,
-): Promise<string> {
+): Promise<void> {
   const senderSecret = Buffer.from(getRandomBytesSync(32));
-  // TODO calculate where will the new StealthWallet be deployed, and encrypt
-  // it with the secret. Then push the encryption to registry
-  // https://swende.se/blog/Ethereum_quirks_and_vulns.html
-  const encrypted = await encrypt(senderSecret, metaAddress.pubKey.toString());
+  const futureWalletAddress = await contractDeploymentAddress(deployer);
+  const ek = await encryptEphemeralKey(
+    senderSecret,
+    futureWalletAddress,
+    metaAddress.pubKey.toString(),
+  );
 
   const code =
     "0x" +
@@ -89,30 +108,50 @@ export async function sendToNewStealthWallet(
       .toString(16)
       .padStart(64, "0");
 
-  // TODO if I can calculate before where the contract will be deployed, I don't
-  // have to manually deploy it and use a StealthWalletCreator contract to
-  // deploy it and also to submit encryption to registry
+  await deployStealthWallet(deployer, code, amount);
+  await submitEphemeralKey(deployer, ek);
+}
+
+async function deployStealthWallet(
+  deployer: Web3BaseWalletAccount,
+  code: string,
+  amount: bigint,
+): Promise<void> {
   const contract = await (await fetch("/StealthWallet.json")).json();
   const newStealthWallet = new web3.eth.Contract(contract.abi);
   const contractDeployer = newStealthWallet.deploy({
     data: contract.bytecode.object,
-    arguments: [code, "TODO GET VERIFIER ADDRESS"],
+    arguments: [code, verifierAddress],
   });
   const gas = await contractDeployer.estimateGas({
     from: deployer.address,
   });
+  const gasPrice = await web3.eth.getGasPrice();
 
-  try {
-    const txRec = await contractDeployer.send({
-      from: deployer.address,
-      value: amount.toString(),
-      gas: gas.toString(),
-      gasPrice: web3.utils.toWei("10", "gwei"),
-    });
-    return txRec.options.address!;
-  } catch (error) {
-    return Promise.reject(error);
-  }
+  await contractDeployer.send({
+    from: deployer.address,
+    value: amount.toString(),
+    gas: gas.toString(),
+    gasPrice: gasPrice.toString(),
+  });
+}
+
+async function submitEphemeralKey(
+  deployer: Web3BaseWalletAccount,
+  ek: EncryptedEphemeralKey,
+): Promise<void> {
+  const submit = ephemeralKeyRegistry.methods.submit(ek);
+  const gas = await submit.estimateGas({
+    from: deployer.address,
+    data: submit.encodeABI(),
+  });
+
+  const gasPrice = await web3.eth.getGasPrice();
+  await submit.send({
+    from: deployer.address,
+    gas: gas.toString(),
+    gasPrice: gasPrice.toString(),
+  });
 }
 
 export async function fetchStealthAddresses(
@@ -133,4 +172,15 @@ export async function fetchStealthAddresses(
       balance: 22125125126136160000n,
     },
   ];
+}
+
+async function contractDeploymentAddress(
+  deployer: Web3BaseWalletAccount,
+): Promise<string> {
+  const nonce = await web3.eth.getTransactionCount(deployer.address);
+  const futureAddress = getContractAddress({
+    from: deployer.address,
+    nonce: nonce,
+  });
+  return futureAddress;
 }
