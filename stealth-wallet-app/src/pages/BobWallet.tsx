@@ -20,7 +20,7 @@ import { showToast } from "../components/ui/toast";
 
 const BobsWallet: Component = () => {
   const [balance] = createResource(bobsPrimaryAccount, fetchBalance);
-  const [otherBalances, { refetch }] = createResource(
+  const [otherBalances, { refetch: refetchBalances }] = createResource(
     bobsSecondaryAccounts,
     async (wallets: Web3BaseWalletAccount[]) => {
       const balances = new Array<bigint>();
@@ -34,10 +34,10 @@ const BobsWallet: Component = () => {
     bobsPrimaryAccount.address,
     fetchMetaStealthAddres,
   );
-  const [stealthWallets, { mutate }] = createResource(
-    bobsPrimaryAccount,
-    fetchStealthWallets,
-  );
+  const [
+    stealthWallets,
+    { mutate: mutateStealthWallets, refetch: refetchStealthWallets },
+  ] = createResource(bobsPrimaryAccount, fetchStealthWallets);
 
   async function withdrawFromStealthWallet(
     walletAddr: string,
@@ -59,7 +59,7 @@ const BobsWallet: Component = () => {
       icon = <i class="fa-solid fa-circle-xmark fa-lg text-white"></i>;
       variant = "destructive";
     }
-    refetch();
+    refetchBalances();
 
     showToast({
       title,
@@ -72,7 +72,7 @@ const BobsWallet: Component = () => {
     const updatedStealthAddresses = stealthWallets()?.filter(
       (w) => w.address !== stealthWallet.address,
     );
-    mutate(updatedStealthAddresses ?? []);
+    mutateStealthWallets(updatedStealthAddresses ?? []);
     updateSavedStealthWallets(stealthWallets()!);
   }
 
@@ -125,9 +125,14 @@ const BobsWallet: Component = () => {
               metaStealthAddress()?.pubKey !== "0x"
             }
           >
-            <h1 class="text-lg p-2 rounded-t-lg bg-violet-300">
-              Bob's Meta Stealth Addresses
+            <h1 class="text-lg p-2 rounded-t-lg bg-violet-300 flex justify-between items-center">
+              <span>Bob's Meta Stealth Addresses</span>
+              <i
+                class="fa-solid fa-rotate fa-lg cursor-pointer"
+                onClick={refetchStealthWallets}
+              />
             </h1>
+
             <div class="rounded-b-lg bg-violet-100 w-full min-h-20 space-y-2 p-2">
               <Switch>
                 <Match when={stealthWallets.loading}>
