@@ -14,6 +14,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/eccrypto": "^1.1.6",
+    "@types/snarkjs": "^0.7.8",
     "autoprefixer": "^10.4.18",
     "jsdom": "^24.0.0",
     "postcss": "^8.4.35",
