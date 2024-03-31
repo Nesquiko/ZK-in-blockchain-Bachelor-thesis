@@ -28,8 +28,10 @@ zkey:
 	rm ownership_0000.zkey ownership_0001.zkey
 
 solidity:
-	snarkjs zkey export solidityverifier $(ZKEY) verifier.sol
+	snarkjs zkey export solidityverifier $(ZKEY) Verifier.sol
+	cp Verifier.sol ../stealth-wallet/src/
+	rm ./Verifier.sol
 
-prover: compile zkey solidity
+prover: compile zkey
 	cp $(BUILD_DIR)/ownership_js/ownership.wasm ../stealth-wallet-app/public
 	cp $(ZKEY) ../stealth-wallet-app/public
