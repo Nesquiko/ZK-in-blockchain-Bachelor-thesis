@@ -10,6 +10,7 @@ const web3 = new Web3(new HttpProvider("http://127.0.0.1:8545"));
 
 const META_STEALTH_REGISTRY_ADDRESS =
   "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+// "0xd8D7bB864B099D437dB603728E90C1402faF3Bee" // on sepolia
 
 const PRIVATE_KEY = bobsPrimaryAccount.privateKey;
 const PUBLIC_KEY = privateToPublic(Buffer.from(strip0x(PRIVATE_KEY), "hex"));
