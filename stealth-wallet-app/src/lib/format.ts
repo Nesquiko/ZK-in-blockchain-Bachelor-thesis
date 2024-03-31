@@ -14,5 +14,5 @@ export function shortenAddress(address?: string): string {
 
 export function formatWei(amount: bigint): string {
   if (amount === 0n) return "0";
-  return web3.utils.fromWei(amount, "ether").slice(0, 6);
+  return web3.utils.fromWei(amount, "ether").slice(0, 10);
 }
