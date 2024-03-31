@@ -6,10 +6,20 @@ import {DeployMetaStealthAddressRegistry} from "../script/DeployMetaStealthAddre
 import {DeployConfig} from "../script/DeployConfig.s.sol";
 import {MetaStealthAddressRegistry} from "../src/MetaStealthAddressRegistry.sol";
 import {Vm} from "forge-std/Vm.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 contract MetaStealthAddressRegistryTest is Test {
+    using MessageHashUtils for bytes32;
+
     // secret = 0xb7cf302145348387b9e69fde82d8e634a0f87
     bytes32 public constant OWNER_SECRET_HASH = 0x2D2EDD9BFE1CC6A328E52CC8989C4F27955F68B9BB0EC136D45100CE9C6C61F4;
+    /*
+    * Signatures are performed on prefix and data. More about prefix
+    * ERC-191 (https://eips.ethereum.org/EIPS/eip-191). The 32 is length of
+    * the signed message, so this prefix can ONLY be used to sign a hash.
+    */
+    string public constant EIP_191_PREFIX = "\x19Ethereum Signed Message:\n32";
 
     DeployMetaStealthAddressRegistry deployer;
     MetaStealthAddressRegistry registry;
@@ -74,7 +84,9 @@ contract MetaStealthAddressRegistryTest is Test {
         metaAddress.signature = bytes.concat(metaAddress.signature, bytes("x"));
 
         vm.prank(wallet.addr);
-        vm.expectRevert(MetaStealthAddressRegistry.MetaStealthAddressRegistry__InvalidSignature.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(ECDSA.ECDSAInvalidSignatureLength.selector, metaAddress.signature.length)
+        );
         registry.setMetaStealthAddress(metaAddress);
     }
 
@@ -94,8 +106,7 @@ contract MetaStealthAddressRegistryTest is Test {
         private
         returns (MetaStealthAddressRegistry.MetaStealthAddress memory)
     {
-        bytes32 metaAddressHash = keccak256(abi.encodePacked(pubKey, h));
-        bytes32 digest = keccak256(abi.encodePacked(registry.signaturePrefix(), metaAddressHash));
+        bytes32 digest = keccak256(abi.encodePacked(pubKey, h)).toEthSignedMessageHash();
         bytes memory signature = sign(signer, digest);
 
         return MetaStealthAddressRegistry.MetaStealthAddress(pubKey, h, signature);
