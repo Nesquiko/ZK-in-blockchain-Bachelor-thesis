@@ -44,6 +44,10 @@ export const web3 = import.meta.env.PROD
   ? new Web3(import.meta.env.VITE_SEPOLIA_RPC)
   : new Web3(new HttpProvider("http://127.0.0.1:8545"));
 
+web3.transactionPollingInterval = 5000;
+web3.transactionReceiptPollingInterval = 5000;
+web3.transactionConfirmationPollingInterval = 5000;
+
 export const metaStealthRegistry = new web3.eth.Contract(
   metaStealthRegistryABI,
   metaStealthRegistryAddress,
@@ -78,6 +82,10 @@ export const aliceAccount = web3.eth.accounts.privateKeyToAccount(
     : "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6",
 );
 
+web3.eth.accounts.wallet.add(bobsPrimaryAccount);
+bobsSecondaryAccounts.forEach((acc) => web3.eth.accounts.wallet.add(acc));
+web3.eth.accounts.wallet.add(aliceAccount);
+
 export interface StealthWallet {
   address: string;
   balance: bigint;
@@ -105,7 +113,7 @@ export async function fetchMetaStealthAddres(
 ): Promise<MetaStealthAddress> {
   return await metaStealthRegistry.methods
     .addressMetaStealthAddress(address)
-    .call();
+    .call({ from: address });
 }
 
 export async function sendToNewStealthWallet(
@@ -287,7 +295,7 @@ function convertEphemeralKey(ek: Web3jsEphemeralKey): EncryptedEphemeralKey {
 async function convertDecryptedEphemeralKey(
   ek: DencryptedEphemeralKey,
 ): Promise<StealthWallet> {
-  const balance = await addressBalance(ek.walletAddress);
+  const balance = await addressBalance("0x" + ek.walletAddress);
   return {
     address: "0x" + ek.walletAddress,
     balance,
