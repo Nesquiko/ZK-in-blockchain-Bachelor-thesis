@@ -83,7 +83,7 @@ const AliceWallet: Component = () => {
       title,
       description,
       icon: <i class="fa-solid fa-circle-check fa-lg text-emerald-500"></i>,
-      duration: 4000,
+      duration: 3000,
     });
   };
 

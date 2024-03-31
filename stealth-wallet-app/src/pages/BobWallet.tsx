@@ -65,7 +65,7 @@ const BobsWallet: Component = () => {
       title,
       description,
       icon,
-      duration: 4000,
+      duration: 3000,
       variant,
     });
 
@@ -175,7 +175,12 @@ const BobsWallet: Component = () => {
           <For each={bobsSecondaryAccounts}>
             {(wallet, i) => (
               <div class="text-base flex justify-between">
-                <span class="col-span-2">{shortenAddress(wallet.address)}</span>
+                <span
+                  class="col-span-2 cursor-pointer hover:underline hover:text-violet-800"
+                  onClick={() => navigator.clipboard.writeText(wallet.address)}
+                >
+                  {shortenAddress(wallet.address)}
+                </span>
                 {!otherBalances.loading &&
                   !otherBalances.error &&
                   otherBalances() && (
