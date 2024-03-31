@@ -22,10 +22,12 @@ interface WithdrawDialogProps {
   from: string;
   amount: bigint;
   withdrawalAccounts: Web3BaseWalletAccount[];
-  onWithdraw: (withdrawalAddres: string) => void;
+  onWithdraw: (withdrawalAddres: string) => Promise<void>;
 }
 
 const WithdrawDialog: Component<WithdrawDialogProps> = (props) => {
+  const [open, setOpen] = createSignal(false);
+  const [loading, setLoading] = createSignal(false);
   const [choosenAddress, setChoosenAddress] = createSignal(
     props.withdrawalAccounts[0].address,
   );
@@ -33,7 +35,7 @@ const WithdrawDialog: Component<WithdrawDialogProps> = (props) => {
     props.withdrawalAccounts.map((acc) => acc.address);
 
   return (
-    <Dialog>
+    <Dialog open={open()} onOpenChange={setOpen}>
       <DialogTrigger>
         <i class="fa-solid fa-arrow-right-to-bracket"></i>
       </DialogTrigger>
@@ -48,6 +50,7 @@ const WithdrawDialog: Component<WithdrawDialogProps> = (props) => {
         <div>
           <Select
             value={choosenAddress()}
+            disabled={loading()}
             onChange={setChoosenAddress}
             options={withdrawalAddresses()}
             itemComponent={(props) => (
@@ -66,8 +69,14 @@ const WithdrawDialog: Component<WithdrawDialogProps> = (props) => {
         <DialogFooter>
           <Button
             type="submit"
-            class="bg-violet-500 hover:bg-violet-700/90"
-            onClick={() => props.onWithdraw(choosenAddress())}
+            class="bg-violet-500 w-20 hover:bg-violet-700/90"
+            loading={loading()}
+            onClick={async () => {
+              setLoading(true);
+              await props.onWithdraw(choosenAddress());
+              setOpen(false);
+              setLoading(false);
+            }}
           >
             Withdraw
           </Button>

@@ -5,8 +5,9 @@ import {
   Web3BaseWalletAccount,
 } from "web3";
 import {
-  ephemeralKeyRegistryAbi,
+  ephemeralKeyRegistryABI,
   metaStealthRegistryABI,
+  stealthWalletABI,
 } from "./contract-abis";
 import { poseidon } from "./poseidon/poseidon";
 import { getRandomBytesSync } from "ethereum-cryptography/random.js";
@@ -25,6 +26,7 @@ import {
   saveStealthWallets,
 } from "./local-storage";
 import { strip0x } from "./convert";
+import { OwnershipProof, calculateProof } from "./prover";
 
 const verifierAddress = import.meta.env.PROD
   ? "" // TODO address on sepolia
@@ -48,9 +50,11 @@ export const metaStealthRegistry = new web3.eth.Contract(
 );
 
 export const ephemeralKeyRegistry = new web3.eth.Contract(
-  ephemeralKeyRegistryAbi,
+  ephemeralKeyRegistryABI,
   ephemeralKeyRegistryAddress,
 );
+
+export const BOBS_SECRET = 10n; // hash = 0x2778f900758cc46e051040641348de3dacc6d2a31e2963f22cbbfb8f65464241
 
 export const bobsPrimaryAccount = web3.eth.accounts.privateKeyToAccount(
   import.meta.env.PROD
@@ -120,8 +124,8 @@ export async function sendToNewStealthWallet(
   const code =
     "0x" +
     poseidon([
+      BigInt(metaAddress.h.toString()),
       BigInt("0x" + senderSecret.toString("hex")),
-      BigInt("0x" + metaAddress.h.toString()),
     ])
       .toString(16)
       .padStart(64, "0");
@@ -183,7 +187,7 @@ function readSavedStealthWallets(): StealthWallet[] {
   });
 }
 
-function updateSavedStealthWallets(wallets: StealthWallet[]) {
+export function updateSavedStealthWallets(wallets: StealthWallet[]) {
   const serialized: SerializedStealthWallet[] = wallets.map((w) => {
     return {
       address: w.address,
@@ -195,7 +199,7 @@ function updateSavedStealthWallets(wallets: StealthWallet[]) {
 }
 
 const BATCH_SIZE = 20n;
-export async function fetchStealthAddresses(
+export async function fetchStealthWallets(
   account: Web3BaseWalletAccount,
 ): Promise<StealthWallet[]> {
   let lastIndex = readLasEphemeralKeyIndex();
@@ -214,6 +218,7 @@ export async function fetchStealthAddresses(
     const decrypted = await filterAccountsAddresses(account, eks[0]);
     for (const dec of decrypted) {
       const wallet = await convertDecryptedEphemeralKey(dec);
+      if (wallet.balance === 0n) continue;
       newWallets.push(wallet);
     }
     lastIndex += BATCH_SIZE;
@@ -288,4 +293,54 @@ async function convertDecryptedEphemeralKey(
     balance,
     senderSecret: ek.senderSecret,
   };
+}
+
+export async function withdraw(
+  withdrawee: Web3BaseWalletAccount,
+  wallet: StealthWallet,
+  ownersSecret: bigint,
+) {
+  const walletContract = new web3.eth.Contract(
+    stealthWalletABI,
+    wallet.address,
+  );
+  const code = BigInt((await walletContract.methods.code().call()).toString());
+  const proof = await calculateProof(ownersSecret, wallet.senderSecret, code);
+  const balance = await addressBalance(wallet.address);
+  const signature = await signProof(proof, withdrawee);
+
+  const withdraw = walletContract.methods.withdraw(
+    withdrawee.address,
+    balance,
+    proof,
+    signature,
+  );
+
+  const gas = await withdraw.estimateGas({
+    from: withdrawee.address,
+  });
+  const gasPrice = await web3.eth.getGasPrice();
+
+  await withdraw.send({
+    from: withdrawee.address,
+    gas: gas.toString(),
+    gasPrice: gasPrice.toString(),
+  });
+}
+
+async function signProof(
+  proof: OwnershipProof,
+  signer: Web3BaseWalletAccount,
+): Promise<string> {
+  const hashed = web3.utils.keccak256(
+    web3.utils.encodePacked(
+      { value: proof.piA, type: "uint256[2]" },
+      { value: proof.piB[0], type: "uint256[2]" },
+      { value: proof.piB[1], type: "uint256[2]" },
+      { value: proof.piC, type: "uint256[2]" },
+      { value: proof.pubSignals, type: "uint256[1]" },
+    ),
+  );
+  const signature = signer.sign(hashed);
+  return signature.signature;
 }

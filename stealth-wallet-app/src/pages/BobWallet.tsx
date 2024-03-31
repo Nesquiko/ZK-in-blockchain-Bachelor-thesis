@@ -2,10 +2,13 @@ import { Component, For, Match, Show, Switch, createResource } from "solid-js";
 import {
   type StealthWallet,
   fetchBalance,
-  fetchStealthAddresses,
+  fetchStealthWallets,
   bobsPrimaryAccount,
   bobsSecondaryAccounts,
   fetchMetaStealthAddres,
+  withdraw,
+  BOBS_SECRET,
+  updateSavedStealthWallets,
 } from "../lib/provider";
 import WalletHeader from "../components/WalletHeader";
 import { formatWei, shortenAddress } from "../lib/format";
@@ -13,10 +16,11 @@ import WithdrawDialog from "../components/WithdrawDialog";
 import { Callout, CalloutTitle } from "../components/ui/callout";
 import Spinner from "../components/ui/Spinner";
 import { Web3BaseWalletAccount } from "web3";
+import { showToast } from "../components/ui/toast";
 
 const BobsWallet: Component = () => {
   const [balance] = createResource(bobsPrimaryAccount, fetchBalance);
-  const [otherBalances] = createResource(
+  const [otherBalances, { refetch }] = createResource(
     bobsSecondaryAccounts,
     async (wallets: Web3BaseWalletAccount[]) => {
       const balances = new Array<bigint>();
@@ -30,24 +34,63 @@ const BobsWallet: Component = () => {
     bobsPrimaryAccount.address,
     fetchMetaStealthAddres,
   );
-  const [stealthAddresses] = createResource(
+  const [stealthWallets, { mutate }] = createResource(
     bobsPrimaryAccount,
-    fetchStealthAddresses,
+    fetchStealthWallets,
   );
 
-  const stealthAddressesListItem = (address: StealthWallet) => {
+  async function withdrawFromStealthWallet(
+    walletAddr: string,
+    stealthWallet: StealthWallet,
+  ): Promise<void> {
+    const wallet = bobsSecondaryAccounts.find((w) => w.address === walletAddr);
+    if (!wallet) return;
+
+    let title = "Withdraw successful!";
+    let description = `Withdrawal of ${formatWei(stealthWallet.balance)} ETH to ${shortenAddress(wallet.address)} was successful!`;
+    let icon = <i class="fa-solid fa-circle-check fa-lg text-emerald-500"></i>;
+    let variant: "default" | "destructive" = "default";
+    try {
+      await withdraw(wallet, stealthWallet, BOBS_SECRET);
+    } catch (e) {
+      console.error(e);
+      title = "Withdrawal failed";
+      description = "There was an error during the withdrawal process";
+      icon = <i class="fa-solid fa-circle-xmark fa-lg text-white"></i>;
+      variant = "destructive";
+    }
+    refetch();
+
+    showToast({
+      title,
+      description,
+      icon,
+      duration: 4000,
+      variant,
+    });
+
+    const updatedStealthAddresses = stealthWallets()?.filter(
+      (w) => w.address !== stealthWallet.address,
+    );
+    mutate(updatedStealthAddresses ?? []);
+    updateSavedStealthWallets(stealthWallets()!);
+  }
+
+  const stealthAddressesListItem = (wallet: StealthWallet) => {
     return (
       <div class="text-base grid grid-cols-6">
-        <span class="col-span-2">{shortenAddress(address.address)}</span>
+        <span class="col-span-2">{shortenAddress(wallet.address)}</span>
         <span class="text-right col-span-3">
-          {formatWei(address.balance)} ETH
+          {formatWei(wallet.balance)} ETH
         </span>
-        <Show when={address.balance !== 0n}>
+        <Show when={wallet.balance !== 0n}>
           <WithdrawDialog
-            from={address.address}
-            amount={address.balance}
+            from={wallet.address}
+            amount={wallet.balance}
             withdrawalAccounts={bobsSecondaryAccounts}
-            onWithdraw={(addr) => console.log("TODO", addr)}
+            onWithdraw={async (withdrawee) =>
+              await withdrawFromStealthWallet(withdrawee, wallet)
+            }
           />
         </Show>
       </div>
@@ -87,10 +130,10 @@ const BobsWallet: Component = () => {
             </h1>
             <div class="rounded-b-lg bg-violet-100 w-full min-h-20 space-y-2 p-2">
               <Switch>
-                <Match when={stealthAddresses.loading}>
+                <Match when={stealthWallets.loading}>
                   <Spinner remSize={4} colorCls="fill-violet-500" />
                 </Match>
-                <Match when={stealthAddresses.error}>
+                <Match when={stealthWallets.error}>
                   <Callout variant="error">
                     <CalloutTitle>
                       Error while fetching stealth addresses
@@ -98,13 +141,13 @@ const BobsWallet: Component = () => {
                   </Callout>
                 </Match>
                 <Match
-                  when={stealthAddresses() && stealthAddresses()?.length === 0}
+                  when={stealthWallets() && stealthWallets()?.length === 0}
                 >
                   <p class="text-lg text-center">
                     No stealth addresses with balance
                   </p>
                 </Match>
-                <Match when={stealthAddresses()}>
+                <Match when={stealthWallets()}>
                   {(addresses) => (
                     <For each={addresses()}>{stealthAddressesListItem}</For>
                   )}

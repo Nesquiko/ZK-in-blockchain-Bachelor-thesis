@@ -42,6 +42,6 @@
     "solid-js": "^1.8.11",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
-    "web3": "^4.6.0"
+    "web3": "^4.7.0"
   }
 }
