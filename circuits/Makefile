@@ -1,6 +1,7 @@
 BUILD_DIR=./build
 CIRCUIT=$(BUILD_DIR)/ownership.r1cs
 PTAU=./powersOfTau28_hez_final_09.ptau
+PTAU_B2=94f108a80e81b5d932d8e8c9e8fd7f46cf32457e31462deeeef37af1b71c2c1b3c71fb0d9b59c654ec266b042735f50311f9fd1d4cadce47ab234ad163157cb5
 BEACON=b7df22ce15bdf139ebec45992e1053f2d3bbdf32da14a77c0912533aa2662638 # Eth block 19410538
 ZKEY=./ownership_final.zkey
 VERIFICATION_KEY=./verification_key.json
@@ -9,7 +10,7 @@ compile:
 	mkdir -p $(BUILD_DIR)
 	circom ownership.circom --r1cs --wasm --sym -o $(BUILD_DIR)
 
-wittness: compile
+witness: compile
 	node ./build/ownership_js/generate_witness.js ./build/ownership_js/ownership.wasm ./input.json ./build/witness.wtns
 
 info:
@@ -19,6 +20,7 @@ constraints:
 	snarkjs r1cs print $(CIRCUIT) ./build/ownership.sym
 
 zkey:
+	echo "$(PTAU_B2) $(PTAU)" | b2sum --check --status
 	snarkjs groth16 setup $(CIRCUIT) $(PTAU) ownership_0000.zkey
 	snarkjs zkey contribute ./ownership_0000.zkey ownership_0001.zkey --name="nesquiko" -v -e="ea0499fbf25679ffd779e6d10075b8ee568111298ab15ac7c05060edbc9d02e8b4bf40916f921fcb62e6296ecb197ac861b3d0b0dd73fb2bb2a950fdfa678202"
 	snarkjs zkey verify $(CIRCUIT) $(PTAU) ownership_0001.zkey
