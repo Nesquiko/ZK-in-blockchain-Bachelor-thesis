@@ -26,18 +26,18 @@ import {
   saveStealthWallets,
 } from "./local-storage";
 import { strip0x } from "./convert";
-import { OwnershipProof, calculateProof } from "./prover";
-
-const verifierAddress = import.meta.env.PROD
-  ? "0x5677dBC2837bEcb896D28193ceacc5c4dF0292D8" // address on sepolia
-  : "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"; // address on local anvil
+import { calculateProof } from "./prover";
 
 const metaStealthRegistryAddress = import.meta.env.PROD
-  ? "0xd8D7bB864B099D437dB603728E90C1402faF3Bee" // address on sepolia
+  ? "0xa08AaF964300121f6C1bD962f7B53C7e06d909BD" // address on sepolia
   : "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // address on local anvil
 
+const verifierAddress = import.meta.env.PROD
+  ? "0xAcDdB8c1D63267960EB8EDC08CA2FA0b310F61f2" // address on sepolia
+  : "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"; // address on local anvil
+
 const ephemeralKeyRegistryAddress = import.meta.env.PROD
-  ? "0xdF428C99802F188A76F6444F4a99FEdBCd913B1d" // address on sepolia
+  ? "0x156Bcce17d7409A32C408e2AAb8F04C8CBd7c450" // address on sepolia
   : "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // address on local anvil
 
 export const web3 = import.meta.env.PROD
