@@ -1,9 +1,7 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {DeployVerifier} from "../script/DeployVerifier.s.sol";
 import {StealthWallet} from "../src/StealthWallet.sol";
-import {DeployConfig} from "../script/DeployConfig.s.sol";
 import {Groth16Verifier} from "../src/Verifier.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
@@ -15,9 +13,6 @@ contract StealthWalletTest is Test {
     address bob;
     Vm.Wallet bobsOtherWallet;
     address alice;
-
-    DeployVerifier deployer;
-    DeployConfig config;
     Groth16Verifier verifier;
 
     function setUp() public {
@@ -25,9 +20,7 @@ contract StealthWalletTest is Test {
         bobsOtherWallet = vm.createWallet(uint256(keccak256(bytes("1"))));
         alice = makeAddr("alice");
         vm.deal(alice, 1000 ether);
-
-        deployer = new DeployVerifier();
-        (verifier, config) = deployer.run();
+        verifier = new Groth16Verifier();
     }
 
     function testFundedOnCreation() public {
@@ -58,72 +51,9 @@ contract StealthWalletTest is Test {
             bob,
             initialBalance + 1 ether,
             StealthWallet.OwnershipProof(
-                [uint256(0), uint256(0)],
-                [[uint256(0), uint256(0)], [uint256(0), uint256(0)]],
-                [uint256(0), uint256(0)],
-                [uint256(0)]
-            ),
-            "some signature"
+                [uint256(0), uint256(0)], [[uint256(0), uint256(0)], [uint256(0), uint256(0)]], [uint256(0), uint256(0)]
+            )
         );
-    }
-
-    function testWithdrawInvalidSignatureLength() public {
-        uint256 initialBalance = 10 ether;
-        uint256 code = 1815914492748566187867478513147096366244223614126420973210485945409066344739;
-        StealthWallet wallet = newStealthWallet(alice, initialBalance, bytes32(code), address(verifier));
-        assertEq(initialBalance, address(wallet).balance);
-
-        bytes memory invalidSig = "invalid-signature";
-        vm.expectRevert(abi.encodeWithSelector(ECDSA.ECDSAInvalidSignatureLength.selector, invalidSig.length));
-        wallet.withdraw(
-            bob,
-            initialBalance,
-            StealthWallet.OwnershipProof(
-                [uint256(0), uint256(0)],
-                [[uint256(0), uint256(0)], [uint256(0), uint256(0)]],
-                [uint256(0), uint256(0)],
-                [uint256(0)]
-            ),
-            invalidSig
-        );
-    }
-
-    function testWithdrawInvalidSignature() public {
-        uint256 initialBalance = 10 ether;
-        uint256 code = 1815914492748566187867478513147096366244223614126420973210485945409066344739;
-        StealthWallet wallet = newStealthWallet(alice, initialBalance, bytes32(code), address(verifier));
-        assertEq(initialBalance, address(wallet).balance);
-
-        vm.expectRevert(ECDSA.ECDSAInvalidSignature.selector);
-        wallet.withdraw(
-            bob,
-            initialBalance,
-            StealthWallet.OwnershipProof(
-                [uint256(0), uint256(0)],
-                [[uint256(0), uint256(0)], [uint256(0), uint256(0)]],
-                [uint256(0), uint256(0)],
-                [uint256(0)]
-            ),
-            "invalid-signature-invalid-signature-invalid-signature-invalid-sig"
-        );
-    }
-
-    function testWithdrawDifferentSigner() public {
-        uint256 initialBalance = 10 ether;
-        StealthWallet wallet = newStealthWallet(alice, initialBalance, 0, address(verifier));
-        assertEq(initialBalance, address(wallet).balance);
-
-        StealthWallet.OwnershipProof memory proof = StealthWallet.OwnershipProof(
-            [uint256(0), uint256(0)],
-            [[uint256(0), uint256(0)], [uint256(0), uint256(0)]],
-            [uint256(0), uint256(0)],
-            [uint256(0)]
-        );
-        bytes memory signature = sign(bobsOtherWallet, proof);
-
-        vm.prank(bob);
-        vm.expectRevert(StealthWallet.StealthWallet__UnauthorizedSigner.selector);
-        wallet.withdraw(bobsOtherWallet.addr, initialBalance, proof, signature);
     }
 
     function testWithdrawInvaliProof() public {
@@ -131,51 +61,83 @@ contract StealthWalletTest is Test {
         StealthWallet wallet = newStealthWallet(alice, initialBalance, 0, address(verifier));
         assertEq(initialBalance, address(wallet).balance);
 
-        StealthWallet.OwnershipProof memory proof = StealthWallet.OwnershipProof(
-            [uint256(0), uint256(0)],
-            [[uint256(0), uint256(0)], [uint256(0), uint256(0)]],
-            [uint256(0), uint256(0)],
-            [uint256(0)]
+        StealthWallet.OwnershipProof memory invalidProof = StealthWallet.OwnershipProof(
+            [uint256(0), uint256(0)], [[uint256(0), uint256(0)], [uint256(0), uint256(0)]], [uint256(0), uint256(0)]
         );
-        bytes memory signature = sign(bobsOtherWallet, proof);
 
         vm.prank(bobsOtherWallet.addr);
         vm.expectRevert(StealthWallet.StealthWallet__InvalidProof.selector);
-        wallet.withdraw(bobsOtherWallet.addr, initialBalance, proof, signature);
+        wallet.withdraw(bobsOtherWallet.addr, initialBalance, invalidProof);
     }
 
     function testWithdraw() public {
+        address withdrawee = vm.addr(0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80);
+
         uint256 initialBalance = 10 ether;
-        uint256 code = 1815914492748566187867478513147096366244223614126420973210485945409066344739;
+        // owners secret is 10, and sender secret is 3483470154602476955580095072550274295529048159835637215612023280312161528373
+        uint256 code = 8773147860295655865765957362831769614202560351882369012261198127295964487019;
         StealthWallet wallet = newStealthWallet(alice, initialBalance, bytes32(code), address(verifier));
         assertEq(initialBalance, address(wallet).balance);
 
         StealthWallet.OwnershipProof memory proof = StealthWallet.OwnershipProof(
             [
-                0x0fe33c359e3aa8ca122cc56025903e8437f48b47790f797f68a6779269933c08,
-                0x235678631afa8f41b16fb40538deb3821f27a7de9c54e8c1e33cf6e6d9e83587
+                0x2e3591c3fee568d00f4069d68895d4dabde1d5c251adc13177b9d8f43cd0f993,
+                0x09b3f838b99ffb119e33cb01368c48104c7e3d155ea528d7c350e8e677cd4c82
             ],
             [
                 [
-                    0x0f26909cfbd6d68259b6fa587f4326fe33878a010f2d1d769181a75df1e77ac5,
-                    0x0ddf1d0ad09d8056b420cf45d5bd688ea2fadad8103ec00aa60f803c3149f7c2
+                    0x28af2952b308f570c06f9a31b02b310a91a1767981aebd6b113a073cddbc821a,
+                    0x15373bb42865f605996101ac66cd93e04af0925238e87ffa9caacab70843eb98
                 ],
                 [
-                    0x1b76ada60cd11da8cc7918f7ae38acfe9a2b019b5fcea7d84c10110a0ed7661d,
-                    0x017f334b7dc8be7498367109b7087b5f3c9ecac3e5c285281da5f90edd6b05d0
+                    0x0975b9715d4f2e48276578bcf60a12dd7aa3e2c6604779846b4ca6992f1f28d4,
+                    0x1fd4240683a625c85fcdf89aaf12e5fa62298e1e10c127dd801c228c1c4b15c2
                 ]
             ],
             [
-                0x2456e8721a3a183b9f4eb69e6bf2cce2972084e7c0a06a2d18a43ee20511e36d,
-                0x1cf221e6cda5b238f822e99798256f0f89a6115fb3530f9a2cc21d48cd5e9e76
-            ],
-            [code]
+                0x2b1a3caa419c3492e79ed7e08585658cc1f26f6369c17dd470a2651cbcea005c,
+                0x1b372a32ee5d9d43c124437c62ef45db7704fc34194bdbae9d5b65e6f5ead129
+            ]
         );
-        bytes memory signature = sign(bobsOtherWallet, proof);
 
-        vm.prank(bobsOtherWallet.addr);
-        wallet.withdraw(bob, initialBalance, proof, signature);
-        assertEq(initialBalance, bob.balance);
+        vm.prank(withdrawee);
+        wallet.withdraw(withdrawee, initialBalance, proof);
+        assertEq(initialBalance, withdrawee.balance);
+    }
+
+    function testWithdrawFromNotProovedWithdrawee() public {
+        address unproovedWithdrawee = vm.addr(123456);
+
+        uint256 initialBalance = 10 ether;
+        // owners secret is 10, and sender secret is 3483470154602476955580095072550274295529048159835637215612023280312161528373
+        uint256 code = 8773147860295655865765957362831769614202560351882369012261198127295964487019;
+        StealthWallet wallet = newStealthWallet(alice, initialBalance, bytes32(code), address(verifier));
+        assertEq(initialBalance, address(wallet).balance);
+
+        StealthWallet.OwnershipProof memory proof = StealthWallet.OwnershipProof(
+            [
+                0x2e3591c3fee568d00f4069d68895d4dabde1d5c251adc13177b9d8f43cd0f993,
+                0x09b3f838b99ffb119e33cb01368c48104c7e3d155ea528d7c350e8e677cd4c82
+            ],
+            [
+                [
+                    0x28af2952b308f570c06f9a31b02b310a91a1767981aebd6b113a073cddbc821a,
+                    0x15373bb42865f605996101ac66cd93e04af0925238e87ffa9caacab70843eb98
+                ],
+                [
+                    0x0975b9715d4f2e48276578bcf60a12dd7aa3e2c6604779846b4ca6992f1f28d4,
+                    0x1fd4240683a625c85fcdf89aaf12e5fa62298e1e10c127dd801c228c1c4b15c2
+                ]
+            ],
+            [
+                0x2b1a3caa419c3492e79ed7e08585658cc1f26f6369c17dd470a2651cbcea005c,
+                0x1b372a32ee5d9d43c124437c62ef45db7704fc34194bdbae9d5b65e6f5ead129
+            ]
+        );
+
+        vm.prank(unproovedWithdrawee);
+        vm.expectRevert(StealthWallet.StealthWallet__InvalidProof.selector);
+        wallet.withdraw(unproovedWithdrawee, initialBalance, proof);
     }
 
     function newStealthWallet(address deployerAddress, uint256 amount, bytes32 code, address verifierAddress)
@@ -186,12 +148,5 @@ contract StealthWalletTest is Test {
         StealthWallet wallet = new StealthWallet{value: amount}(code, verifierAddress);
         vm.stopBroadcast();
         return wallet;
-    }
-
-    function sign(Vm.Wallet memory signer, StealthWallet.OwnershipProof memory proof) private returns (bytes memory) {
-        bytes32 digest = keccak256(abi.encodePacked(proof.piA, proof.piB[0], proof.piB[1], proof.piC, proof.pubSignals))
-            .toEthSignedMessageHash();
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signer, digest);
-        return abi.encodePacked(r, s, v);
     }
 }
