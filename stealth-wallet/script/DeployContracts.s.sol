@@ -7,14 +7,10 @@ import {MetaStealthAddressRegistry} from "../src/MetaStealthAddressRegistry.sol"
 import {Groth16Verifier} from "../src/Verifier.sol";
 import {EphemeralKeyRegistry} from "../src/EphemeralKeyRegistry.sol";
 
-contract SetupLocalAnvil is Script {
-    uint256 public constant ANVIL_CHAIN_ID = 31337;
-
+contract DeployContracts is Script {
     function run() external {
-        require(block.chainid == ANVIL_CHAIN_ID, "Running on wrong network, only for local anvil");
-
         DeployConfig config = new DeployConfig();
-        (uint256 deployerPK) = config.activeConfig();
+        (, uint256 deployerPK) = config.activeConfig();
 
         vm.startBroadcast(deployerPK);
         new MetaStealthAddressRegistry();

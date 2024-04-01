@@ -17,5 +17,4 @@ stealth-wallet/cache
 stealth-wallet/out
 stealth-wallet-app/.env
 stealth-wallet/.env
-stealth-wallet/broadcast/DeployMetaStealthAddressRegistry.s.sol/31337
-stealth-wallet/broadcast/SetupLocalAnvil.s.sol/31337
+stealth-wallet/broadcast/DeployContracts.s.sol/31337
