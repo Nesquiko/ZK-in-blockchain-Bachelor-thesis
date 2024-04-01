@@ -1,5 +1,4 @@
 import Web3, { HttpProvider } from "web3";
-import { secp256k1 } from "ethereum-cryptography/secp256k1.js";
 import { metaStealthRegistryABI } from "../src/lib/contract-abis";
 import { privateToPublic } from "@ethereumjs/util";
 import { BOBS_SECRET, bobsPrimaryAccount } from "../src/lib/provider";
@@ -7,6 +6,9 @@ import { strip0x } from "../src/lib/convert";
 import { poseidon } from "../src/lib/poseidon/poseidon";
 
 const web3 = new Web3(new HttpProvider("http://127.0.0.1:8545"));
+web3.transactionPollingInterval = 5000;
+web3.transactionReceiptPollingInterval = 5000;
+web3.transactionConfirmationPollingInterval = 5000;
 
 const META_STEALTH_REGISTRY_ADDRESS =
   "0x5FbDB2315678afecb367f032d93F642f64180aa3";
@@ -27,7 +29,6 @@ const metaStealthRegistry = new web3.eth.Contract(
   metaStealthRegistryABI,
   META_STEALTH_REGISTRY_ADDRESS,
 );
-metaStealthRegistry.handleRevert = true;
 
 const dataToSign = web3.utils.keccak256(
   web3.utils.encodePacked(
