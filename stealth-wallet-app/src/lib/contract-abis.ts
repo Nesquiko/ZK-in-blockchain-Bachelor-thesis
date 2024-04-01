@@ -21,14 +21,9 @@ export const metaStealthRegistryABI = [
             internalType: "bytes",
           },
           {
-            name: "h",
+            name: "secretHash",
             type: "bytes32",
             internalType: "bytes32",
-          },
-          {
-            name: "signature",
-            type: "bytes",
-            internalType: "bytes",
           },
         ],
       },
@@ -50,16 +45,16 @@ export const metaStealthRegistryABI = [
             internalType: "bytes",
           },
           {
-            name: "h",
+            name: "secretHash",
             type: "bytes32",
             internalType: "bytes32",
           },
-          {
-            name: "signature",
-            type: "bytes",
-            internalType: "bytes",
-          },
         ],
+      },
+      {
+        name: "signature",
+        type: "bytes",
+        internalType: "bytes",
       },
     ],
     outputs: [],
@@ -102,7 +97,7 @@ export const metaStealthRegistryABI = [
     name: "MetaStealthAddressRegistry__UnauthorizedSigner",
     inputs: [],
   },
-];
+] as const;
 
 export const ephemeralKeyRegistryABI = [
   {
@@ -326,17 +321,7 @@ export const stealthWalletABI = [
             type: "uint256[2]",
             internalType: "uint256[2]",
           },
-          {
-            name: "pubSignals",
-            type: "uint256[1]",
-            internalType: "uint256[1]",
-          },
         ],
-      },
-      {
-        name: "proofSignature",
-        type: "bytes",
-        internalType: "bytes",
       },
     ],
     outputs: [
@@ -350,44 +335,12 @@ export const stealthWalletABI = [
   },
   {
     type: "error",
-    name: "ECDSAInvalidSignature",
-    inputs: [],
-  },
-  {
-    type: "error",
-    name: "ECDSAInvalidSignatureLength",
-    inputs: [
-      {
-        name: "length",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-  },
-  {
-    type: "error",
-    name: "ECDSAInvalidSignatureS",
-    inputs: [
-      {
-        name: "s",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-    ],
-  },
-  {
-    type: "error",
     name: "StealthWallet__AmountExceedsBalance",
     inputs: [],
   },
   {
     type: "error",
     name: "StealthWallet__InvalidProof",
-    inputs: [],
-  },
-  {
-    type: "error",
-    name: "StealthWallet__UnauthorizedSigner",
     inputs: [],
   },
   {

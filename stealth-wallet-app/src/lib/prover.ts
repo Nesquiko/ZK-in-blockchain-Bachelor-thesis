@@ -11,6 +11,7 @@ export interface OwnershipProof {
 }
 
 export async function calculateProof(
+  withdrawee: string,
   ownersSecret: bigint,
   sendersSecret: bigint,
   code: bigint,
@@ -19,6 +20,8 @@ export async function calculateProof(
     owner_secret: ownersSecret.toString(10),
     sender_secret: sendersSecret.toString(10),
     code: code.toString(10),
+    withdrawee_address: withdrawee,
+    msg_sender: withdrawee,
   };
 
   const { proof, publicSignals } = await groth16.fullProve(

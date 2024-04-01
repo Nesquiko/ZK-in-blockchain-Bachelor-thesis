@@ -104,8 +104,7 @@ async function addressBalance(address: string) {
 
 export interface MetaStealthAddress {
   pubKey: MatchPrimitiveType<"bytes", unknown>;
-  h: MatchPrimitiveType<"bytes32", unknown>;
-  signature: MatchPrimitiveType<"bytes", unknown>;
+  secretHash: MatchPrimitiveType<"bytes32", unknown>;
 }
 
 export async function fetchMetaStealthAddres(
@@ -132,7 +131,7 @@ export async function sendToNewStealthWallet(
   const code =
     "0x" +
     poseidon([
-      BigInt(metaAddress.h.toString()),
+      BigInt(metaAddress.secretHash.toString()),
       BigInt("0x" + senderSecret.toString("hex")),
     ])
       .toString(16)
@@ -313,15 +312,18 @@ export async function withdraw(
     wallet.address,
   );
   const code = BigInt((await walletContract.methods.code().call()).toString());
-  const proof = await calculateProof(ownersSecret, wallet.senderSecret, code);
+  const proof = await calculateProof(
+    withdrawee.address,
+    ownersSecret,
+    wallet.senderSecret,
+    code,
+  );
   const balance = await addressBalance(wallet.address);
-  const signature = await signProof(proof, withdrawee);
 
   const withdraw = walletContract.methods.withdraw(
     withdrawee.address,
     balance,
     proof,
-    signature,
   );
 
   const gas = await withdraw.estimateGas({
@@ -334,21 +336,4 @@ export async function withdraw(
     gas: gas.toString(),
     gasPrice: gasPrice.toString(),
   });
-}
-
-async function signProof(
-  proof: OwnershipProof,
-  signer: Web3BaseWalletAccount,
-): Promise<string> {
-  const hashed = web3.utils.keccak256(
-    web3.utils.encodePacked(
-      { value: proof.piA, type: "uint256[2]" },
-      { value: proof.piB[0], type: "uint256[2]" },
-      { value: proof.piB[1], type: "uint256[2]" },
-      { value: proof.piC, type: "uint256[2]" },
-      { value: proof.pubSignals, type: "uint256[1]" },
-    ),
-  );
-  const signature = signer.sign(hashed);
-  return signature.signature;
 }
