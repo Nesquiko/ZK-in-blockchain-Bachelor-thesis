@@ -2,8 +2,6 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {DeployMetaStealthAddressRegistry} from "../script/DeployMetaStealthAddressRegistry.s.sol";
-import {DeployConfig} from "../script/DeployConfig.s.sol";
 import {MetaStealthAddressRegistry} from "../src/MetaStealthAddressRegistry.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -21,95 +19,88 @@ contract MetaStealthAddressRegistryTest is Test {
     */
     string public constant EIP_191_PREFIX = "\x19Ethereum Signed Message:\n32";
 
-    DeployMetaStealthAddressRegistry deployer;
     MetaStealthAddressRegistry registry;
-    DeployConfig config;
     Vm.Wallet wallet;
 
     function setUp() public {
         wallet = vm.createWallet(uint256(keccak256(bytes("1"))));
-        deployer = new DeployMetaStealthAddressRegistry();
-        (registry, config) = deployer.run();
+        registry = new MetaStealthAddressRegistry();
     }
 
     function testSetNewMetaStealthAddress() public {
-        MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress =
+        (MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress, bytes memory signature) =
             signedMetaStealthAddress(wallet, abi.encode(wallet.publicKeyX, wallet.publicKeyY), OWNER_SECRET_HASH);
 
         vm.prank(wallet.addr);
-        registry.setMetaStealthAddress(metaAddress);
+        registry.setMetaStealthAddress(metaAddress, signature);
 
         bytes32 newSecretHash = 0x2A267E27E712412E8EEFEC1E174CE85B1AF2F2D9A8014FA4DC723ABB4D27EF7D; // secret: 5
-        metaAddress = signedMetaStealthAddress(wallet, abi.encode(wallet.publicKeyX, wallet.publicKeyY), newSecretHash);
+        (metaAddress, signature) =
+            signedMetaStealthAddress(wallet, abi.encode(wallet.publicKeyX, wallet.publicKeyY), newSecretHash);
 
         vm.prank(wallet.addr);
-        registry.setMetaStealthAddress(metaAddress);
+        registry.setMetaStealthAddress(metaAddress, signature);
 
         metaAddress = registry.addressMetaStealthAddress(wallet.addr);
-        assertEq(newSecretHash, metaAddress.h);
+        assertEq(newSecretHash, metaAddress.secretHash);
     }
 
     function testSetMetaStealthAddress() public {
         MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress =
             registry.addressMetaStealthAddress(wallet.addr);
         assertEq(0, metaAddress.pubKey.length);
-        assertEq(bytes32(0), metaAddress.h);
-        assertEq(0, metaAddress.signature.length);
+        assertEq(bytes32(0), metaAddress.secretHash);
 
-        metaAddress =
+        bytes memory signature;
+        (metaAddress, signature) =
             signedMetaStealthAddress(wallet, abi.encode(wallet.publicKeyX, wallet.publicKeyY), OWNER_SECRET_HASH);
-        bytes memory signature = metaAddress.signature;
 
         vm.prank(wallet.addr);
-        registry.setMetaStealthAddress(metaAddress);
+        registry.setMetaStealthAddress(metaAddress, signature);
 
         metaAddress = registry.addressMetaStealthAddress(wallet.addr);
         assertEq(abi.encode(wallet.publicKeyX, wallet.publicKeyY), metaAddress.pubKey);
-        assertEq(OWNER_SECRET_HASH, metaAddress.h);
-        assertEq(signature, metaAddress.signature);
+        assertEq(OWNER_SECRET_HASH, metaAddress.secretHash);
     }
 
     function testRevertOnPublicKeyIsntSenders() public {
-        MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress =
+        (MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress, bytes memory signature) =
             signedMetaStealthAddress(wallet, abi.encode(wallet.publicKeyX, wallet.publicKeyY), OWNER_SECRET_HASH);
         address differentSender = makeAddr("different");
         vm.prank(differentSender);
         vm.expectRevert(MetaStealthAddressRegistry.MetaStealthAddressRegistry__UnauthorizedSender.selector);
-        registry.setMetaStealthAddress(metaAddress);
+        registry.setMetaStealthAddress(metaAddress, signature);
     }
 
     function testRevertOnInvalidSignature() public {
-        MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress =
+        (MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress, bytes memory signature) =
             signedMetaStealthAddress(wallet, abi.encode(wallet.publicKeyX, wallet.publicKeyY), OWNER_SECRET_HASH);
-        metaAddress.signature = bytes.concat(metaAddress.signature, bytes("x"));
+        signature = bytes.concat(signature, bytes("x"));
 
         vm.prank(wallet.addr);
-        vm.expectRevert(
-            abi.encodeWithSelector(ECDSA.ECDSAInvalidSignatureLength.selector, metaAddress.signature.length)
-        );
-        registry.setMetaStealthAddress(metaAddress);
+        vm.expectRevert(abi.encodeWithSelector(ECDSA.ECDSAInvalidSignatureLength.selector, signature.length));
+        registry.setMetaStealthAddress(metaAddress, signature);
     }
 
     function testRevertOnDifferentSigner() public {
         Vm.Wallet memory differentWallet = vm.createWallet(uint256(keccak256(bytes("2"))));
 
-        MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress = signedMetaStealthAddress(
-            differentWallet, abi.encode(wallet.publicKeyX, wallet.publicKeyY), OWNER_SECRET_HASH
-        );
+        (MetaStealthAddressRegistry.MetaStealthAddress memory metaAddress, bytes memory signature) =
+        signedMetaStealthAddress(differentWallet, abi.encode(wallet.publicKeyX, wallet.publicKeyY), OWNER_SECRET_HASH);
 
         vm.prank(wallet.addr);
         vm.expectRevert(MetaStealthAddressRegistry.MetaStealthAddressRegistry__UnauthorizedSigner.selector);
-        registry.setMetaStealthAddress(metaAddress);
+        registry.setMetaStealthAddress(metaAddress, signature);
     }
 
-    function signedMetaStealthAddress(Vm.Wallet memory signer, bytes memory pubKey, bytes32 h)
+    function signedMetaStealthAddress(Vm.Wallet memory signer, bytes memory pubKey, bytes32 secretHash)
         private
-        returns (MetaStealthAddressRegistry.MetaStealthAddress memory)
+        returns (MetaStealthAddressRegistry.MetaStealthAddress memory, bytes memory)
     {
-        bytes32 digest = keccak256(abi.encodePacked(pubKey, h)).toEthSignedMessageHash();
+        bytes32 digest = keccak256(abi.encodePacked(pubKey, secretHash)).toEthSignedMessageHash();
         bytes memory signature = sign(signer, digest);
 
-        return MetaStealthAddressRegistry.MetaStealthAddress(pubKey, h, signature);
+        return (MetaStealthAddressRegistry.MetaStealthAddress(pubKey, secretHash), signature);
     }
 
     function sign(Vm.Wallet memory signer, bytes32 digest) private returns (bytes memory) {

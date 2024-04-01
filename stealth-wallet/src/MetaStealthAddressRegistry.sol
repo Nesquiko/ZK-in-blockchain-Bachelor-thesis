@@ -13,19 +13,18 @@ contract MetaStealthAddressRegistry {
 
     struct MetaStealthAddress {
         bytes pubKey;
-        bytes32 h;
-        bytes signature;
+        bytes32 secretHash;
     }
 
     mapping(address => MetaStealthAddress) private metaStealthAddresses;
 
-    function setMetaStealthAddress(MetaStealthAddress memory newMetaAddress) external {
+    function setMetaStealthAddress(MetaStealthAddress calldata newMetaAddress, bytes calldata signature) external {
         if (msg.sender != address(uint160(uint256(keccak256(newMetaAddress.pubKey))))) {
             revert MetaStealthAddressRegistry__UnauthorizedSender();
         }
 
-        bytes32 metaAddressHash = keccak256(abi.encodePacked(newMetaAddress.pubKey, newMetaAddress.h));
-        address signer = metaAddressHash.toEthSignedMessageHash().recover(newMetaAddress.signature);
+        bytes32 metaAddressHash = keccak256(abi.encodePacked(newMetaAddress.pubKey, newMetaAddress.secretHash));
+        address signer = metaAddressHash.toEthSignedMessageHash().recover(signature);
 
         if (signer != msg.sender) {
             revert MetaStealthAddressRegistry__UnauthorizedSigner();
