@@ -1,0 +1,23 @@
+@startuml
+left to right direction
+package Contracts {
+  component "Meta Stealth Address Registry" as registry
+  component "Ephemeral Key Registry" as key_registry
+  component "Stealth Wallet" as stealth_wallet
+  component "Verifier" as verifier
+}
+package Circuits {
+  component "Ownership Circuit" as circuit 
+}
+package "Web App" {
+  component "Wallet Client" as wallet
+}
+    
+stealth_wallet ..> verifier
+verifier ..> circuit
+wallet ..> registry
+wallet ..> key_registry
+wallet ..> stealth_wallet
+wallet ..> circuit
+
+@enduml

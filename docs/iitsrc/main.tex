@@ -436,13 +436,14 @@
     he will be sending transaction, only can create create a valid proof and thus
     interact with the wallet.
 
-\section{Implementation}
+\section{Implementation}\label{implementation}
 
-    The implementation of this study is separated into 3 modules, module for the
-    circuit which will compute ZKP, another one for smart contracts needed to implement
-    stealth wallet with ZKP stealth address schema, and module with a web app used
-    to interact with the stealth wallets. In this section different terminology
-    is used, instead of Bob, owner is used. And instead of Alice sender is used.
+    In this section different terminology is used, instead of Bob, owner is used.
+    And instead of Alice sender is used. The implementation of this study is
+    separated into 3 modules \ref{fig:component-diagram}, module for the
+    circuit which will compute ownership proofs, another one for smart contracts
+    needed to implement stealth wallet with ZKP stealth address schema, and
+    module with a web app wallet client used to interact with the stealth wallets.
 
     The implementation is only a proof of concept, not a full featured wallet.
     The sender's part is the same as described until now. The owner however,
@@ -451,25 +452,57 @@
     Fractional withdrawals, ERC20 token transfers, transaction proxying and other wallet
     features can be implemented in future work.
 
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[scale=0.3]{../bachelor/assets/images/component-diagram.png}
+        \caption{Component diagram}
+        \label{fig:component-diagram}
+        \vspace{0.5cm}
+    \end{figure}
+
     \subsection{Circuits}
 
         Circuits for proving and verifying ZKPs are written in Circom 2\cite{circom}.
-        Private inputs to this circuit are
+        With circom compiler, a circuit is compiled into a Groth16
+        ZK-SNARK proof system\cite{Groth16} representation. Circom also generates
+        either C++ of Wasm source files for computing witness (proof) for the
+        circuit. Circuit written in this study, which proves ownership, has
+        these private inputs:
         \begin{enumerate}
             \item owner's secret value,
             \item sender's secret value,
             \item and the withdrawee address.
         \end{enumerate}
-
-        And public inputs, supplied by the stealth wallet are
+        And these public inputs:
         \begin{enumerate}
             \item code that was submitted by sender on contract creation,
             \item and the transaction sender.
         \end{enumerate}
 
-        TODO groth16, trusted setup
+        Groth16 requires a trusted setup for each circuit. For Groth16 trusted
+        setup, there are two parts:
+        \begin{enumerate}
+            \item Powers of Tau ceremony\cite{PowersOfTau},
+            \item and phase 2 dependent on the circuit.
+        \end{enumerate}
+        Powers of Tau ceremony is used to generate initial parameters for a SNARK.
+        In this ceremony, the initial parameters are generated using a multi-party
+        computation. If only one party in this computation is acting honestly,
+        the entire process is trustworthy and the initial parameters are secure
+        for use with any circuit. There is ongoing public powers of tau ceremony
+        called Perpetual Powers of Tau \cite{PerpetualPTAU}. Its goal is to
+        securely generate SNARK parameters for circuits. In this study a powers
+        of tau ceremony file from SnarkJS\cite{snarkjs} is used, which is from
+        this ceremony. Phase 2 is generated with SnarkJS\cite{snarkjs} and is
+        specific for circuit.
 
     \subsection{Smart contracts}
+
+        Smart contracts in this implementation are written in programming
+        language Solidity\cite{solidity} and the are developed and tested
+        with Foundry\cite{foundry}. They are deployed through
+        Infura\cite{infura} Ethereum RPC provider to the Sepolia Ethereum
+        testnet\cite{sepolia}.
 
         There are four smart contracts implemented. A meta stealth address
         registry which holds meta stealth addresses. A ephemeral key registry
@@ -482,9 +515,58 @@
         with funds and computed codes. Owners send proofs to stealth wallets,
         which interact with the verifier.
 
+    \subsection{Web app}
 
+        Wallet client used to interact with stealth wallets is written in
+        frontend framework SolidJS\cite{solidjs}, with Web3JS\cite{web3js}
+        as the main library for interacting with blockchain, and Infura\cite{infura}
+        is used as a Ethereum RPC provider.
+
+        It consists of two sub-pages, one for sender (Alice), in which a sender
+        can query meta stealth addresses and deploy stealth wallets only accessible
+        by the owners of corresponding meta stealth addresses. And the second one,
+        for owners (Bob) which displays all stealth wallets with balance and enables
+        owners to withdraw funds from them by generating ZKPs.
+
+\section{Future work}
+    This study opens up few avenues for future research and improvements
+    to this proof of concept:
+
+    \begin{enumerate}
+        \item Adding functionality as mentioned in \ref{implementation},
+        \item How to setup initial parameters of a circuit to achive trustworthiness
+                and security,
+        \item Formal proof of security and soundness of proposed solution,
+        \item Smart contract optimizations via gas optimizations in the Solidity code,
+        \item Exploring different ZKP proof systems with comparisons and benchmarks,
+        \item Incorporate recoverability into stealth wallets.
+    \end{enumerate}
 
 \section{Conclusion and Future Work}
+
+    This study investigated the application of Zero-Knowledge Proofs (ZKPs)
+    in stealth addresses schema on Ethereum. The primary research
+    goal was to design and implement a proof of concept stealth address schema
+    which utilizes ZKPs to achieve privacy of transactions.
+    The solution aimed to protect a recipient's identity (Bob) while enabling
+    a sender (Alice) to transfer funds without any way of identitying the
+    recipient.
+
+    The implementation demonstrates the core concept of a
+    ZKP-based stealth address schema. Senders deploy stealth wallets
+    associated with a code derived from a combination of their secret value
+    and the recipient's hashed secret. The recipient can generate ZKPs,
+    proving knowledge of both secret values, to withdraw funds from their
+    corresponding stealth wallets. The design also ensures that proofs can
+    only be valid when submitted by the specific recipient who owns both
+    secret values. It's important to note that the current implementation
+    serves as a proof of concept, and further development
+    would be necessary for real-world deployment as a full-featured wallet. 
+
+    In conclusion, this research work demonstrates the feasibility and
+    advantages applying ZKPs into stealth address schema. The privacy
+    protection provided by ZKPs in this context highlights a promising
+    direction for strengthening anonymity in cryptocurrency transactions.
 
 \begin{thebibliography}{00}
     \bibitem{goldreich1991proofs} O. Goldreich, S. Micali, and A. Wigderson, “Proofs that yield nothing but their validity or all languages in NP have zero-knowledge proof systems,” Journal of the ACM (JACM), vol. 38, no. 3, pp. 690–728, 1991.
@@ -503,7 +585,15 @@
     \bibitem{umbra} Umbra — app.umbra.cash. https://app.umbra.cash/. [Online]. Available: https://app.umbra.cash/
     \bibitem{nocturne} Nocturne — nocturne.xyz. https://nocturne.xyz/. [Online]. Available: https://nocturne.xyz/
     \bibitem{circom} Circom 2 Documentation — docs.circom.io. https://docs.circom.io/. [Online]. Available: https://docs.circom.io/
-
+    \bibitem{snarkjs} GitHub - iden3/snarkjs: zkSNARK implementation in JavaScript \& WASM — github.com. \url{https://github.com/iden3/snarkjs}. [Online]. Available: \url{https://github.com/iden3/snarkjs}
+    \bibitem{PowersOfTau} V. Nikolaenko, S. Ragsdale, J. Bonneau, and D. Boneh, “Powers-of-Tau to the People: Decentralizing Setup Ceremonies,” in Applied Cryptography and Network Security, 2024, pp. 105–134.
+    \bibitem{PerpetualPTAU} GitHub - privacy-scaling-explorations/perpetualpowersoftau: Phase 1 of a multi-party trusted setup ceremony for zk-SNARKs — github.com. https://github.com/privacy-scaling-explorations/perpetualpowersoftau. [Online]. Available: https://github.com/privacy-scaling-explorations/perpetualpowersoftau
+    \bibitem{solidjs} SolidJS — solidjs.com. https://www.solidjs.com/. [Online]. Available: https://www.solidjs.com/
+    \bibitem{web3js} Web3.js — Javascript Ethereum API — web3js.org. https://web3js.org/. [Online]. Available: https://web3js.org/
+    \bibitem{infura} Infura. https://www.infura.io/. [Online]. Available: https://www.infura.io/
+    \bibitem{foundry} Foundry Book — book.getfoundry.sh. https://book.getfoundry.sh/. [Online]. Available: https://book.getfoundry.sh/
+    \bibitem{sepolia} Networks | ethereum.org — ethereum.org. https://ethereum.org/en/developers/docs/networks/#sepolia. [Online]. Available: https://ethereum.org/en/developers/docs/networks/#sepolia
+    \bibitem{solidity} Home | Solidity Programming Language — soliditylang.org. https://soliditylang.org/. [Online]. Available: https://soliditylang.org/
 \end{thebibliography}
 
 \end{document}

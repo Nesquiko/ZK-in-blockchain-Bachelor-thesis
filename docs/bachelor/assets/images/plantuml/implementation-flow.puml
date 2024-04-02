@@ -1,0 +1,32 @@
+@startuml
+skinparam DefaultFontSize 18
+skinparam sequenceArrowThickness 2
+
+hide footbox
+autonumber
+
+actor Bob as b #blue
+actor Alice as a #green
+
+b -> MetaStealthAddressRegistry : submit meta\nstealth address
+||20||
+a -> MetaStealthAddressRegistry : query Bob's meta\nstealth address
+activate MetaStealthAddressRegistry
+return Bob's meta stealth address
+||20||
+a -> a : compute secret,\ncode, ephemeral key
+a -> StealthWallet : deploy wallet with\ncode and funds
+a -> EphemeralKeyRegistry : submit ephemeral key
+||20||
+b -> EphemeralKeyRegistry : query ephemeral keys
+activate EphemeralKeyRegistry
+return batch of ephemeral keys
+b -> b : decrypt ephemeral keys
+b -> b : save Alice's secret and\nStealthWallet address
+||20||
+b -> b : generate proof
+b -> StealthWallet : submit proof for\nwithdrawal from\nsecondary address
+activate StealthWallet
+return funds
+
+@enduml
