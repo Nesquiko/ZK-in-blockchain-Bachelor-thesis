@@ -3,11 +3,11 @@
 The analysis section of the thesis starts with demonstration of interactive
 proofs with goal to build up intuition behind interactive proofs \cite{Goldwasser1989,youtubeMOOCLecture1}.
 This section explains how Alice attempts to prove to Bob that she knows an
-algorithm, with which she computes some pair (N, y), such that this pair is
-part of the quadratic residue language QR. Specifically, Alice needs to
-convince Bob that there exists an x, such that y equals x squared modulo N,
-effectively placing the pair (N, y) within the QR language, which includes all
-pairs where y is a quadratic residue of N.
+algorithm, with which she computes some pair $(N, y)$, such that this pair is
+part of the quadratic residue language $QR$. Specifically, Alice needs to
+convince Bob that there exists an $x$, such that $y$ equals $x$ squared modulo $N$,
+effectively placing the pair $(N, y)$ within the $QR$ language, which includes all
+pairs where $y$ is a quadratic residue of $N$.
 
 The analysis section continues by highlighting a practical limitation of
 interactive proofs in real world cryptography. It notes that for Alice to
@@ -22,7 +22,7 @@ proof more practical and scalable for real-world cryptographic applications.
 While in theory any NP statement \cite{goldreich1991proofs} can be proven using
 interactive proofs, practical implementation requires specific definition and
 encoding of the statement. There are two main models of general computation,
-those are circuits and turing machines. To trace the computation of a turing
+those are circuits and turing machines. To trace a computation of a turing
 machine, the representation needs to somehow handle memory and thus would accrue
 more complexity than if a circuit is used. To represent a statement as a
 circuit, an arithmetic circuit, a computation model composed of addition and
@@ -44,9 +44,9 @@ confidentiality while maintaining the anonymity of the recipient's identity.
 \section{Proof of quadratic residuosity}
 
 This first part focuses on demonstrating an interactive proof where Alice aims
-to prove to Bob that she knows an algorithm, which computes some pair (N, y),
-such that this pair is part of the quadratic residue language QR \cite{Goldwasser1989}.
-QR is defined as:
+to prove to Bob that she knows an algorithm, which computes some pair $(N, y)$,
+such that this pair is part of the quadratic residue language $QR$ \cite{Goldwasser1989}.
+$QR$ is defined as:
 
 \[QR = \lbrace(N, y): \exists x, y \equiv x^2 \pmod{N}\rbrace\]
 
@@ -60,7 +60,7 @@ QR is defined as:
 \end{figure}
 
 \begin{enumerate}
-    \item Alice generates pair (N, y),
+    \item Alice generates pair $(N, y)$,
     \item Alice picks a random $r$ such that $1 \leq r \leq N$ and $\gcd(r, N) = 1$,
           and calculates $s \equiv r^2 \pmod{N}$,
     \item Alice sends Bob $s$,
@@ -148,7 +148,7 @@ The computation model used to create ZKPs is an arithmetic circuit in a
 finite field $\mathbb{F}_p$. The arithmetic circuit is a function which takes
 $n$ elements from field $\mathbb{F}_p$ and returns one element from that field.
 
-\[AC: \mathbb{F}^n \rightarrow F \]
+\[AC: \mathbb{F}_p^n \rightarrow \mathbb{F}_p \]
 
 The $AC$ can be represented as a directed acyclic graph, or a polynomial. For
 example, polynomial $x_1x_2 + (x_2 + x_3)^2$ represents the same circuit as this
@@ -163,7 +163,7 @@ directed acyclic graph
     \vspace{0.5cm}
 \end{figure}
 
-Another representation of a arithmetic circuits is called a Rank 1 Constraint
+Another representation of an arithmetic circuits is called a Rank 1 Constraint
 System (R1CS). R1CS is a system of equations of a form $\alpha \times \beta = \gamma$,
 where $\alpha, \beta, \gamma$ are affine combinations of variables $w$ and $x$,
 where $w$ is a witness (private inputs) and $x$ is a public inputs.
@@ -259,7 +259,7 @@ Then during the interaction prover and verifier exchange additional function
 commitments $comm_{f1}, comm_{f2}, \dots, comm_{fm}$, and random values $r_1, r_2, \dots, r_m$.
 At the end verifier computes:
 
-\[ Verify^{comm_{f1}, comm_{f2}, \dots, comm_{fm}, \ldots, comm_{fn}}(x, r_1, r_2, \dots, r_m) = accept/reject \]
+\[ Verify^{comm_{f1}, comm_{f2}, \dots, comm_{fm}, \ldots, comm_{fn}}(x, r_1, r_2, \dots, r_m) = accept/reject \]\cite{SassonIOPs}
 
 The $Verify$ algorithm computes if the proof is valid, based on queried
 function commitments from $vp$, and the function commitments which were
@@ -316,11 +316,12 @@ For a recipient to receive funds, they need to publish a meta stealth address,
 from which senders can generate a new stealth address. This new stealth address
 can not be linked to the meta stealth address, and thus the recipient's identity
 is protected. Additionally, senders must publish some information, which allows
-the recipient to derive the private key for the stealth address.
+the recipient to gain control over stealth address to which the sender
+sent funds.
 
 ZKPs can be used to prove that the recipient owns the stealth address, and
 thus can spend the funds. The proof can be sent from any address, but only
-the recipient can generate it, because only he knows the private data
+the recipient can generate it, because only he/she knows the private data
 that is required to generate the proof. The zero knowledge property of the
 proof ensures that the recipient's identity is not revealed.
 

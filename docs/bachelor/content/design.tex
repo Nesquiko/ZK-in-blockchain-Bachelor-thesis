@@ -2,37 +2,52 @@
 
 The Solution Design section outlines the design of a stealth address
 scheme using ZKPs for the Ethereum blockchain. The scenario which is being
-solved involves Alice, who wishes to send funds to Bob discreetly, ensuring no
-one else can identify Bob as the recipient. This part of the thesis details
-the application of ZKPs employed to achieve this privacy, allowing Alice to
-complete the transaction without compromising Bob's identity.
+solved involves Alice (sender), who wishes to send funds to Bob (recipient)
+discreetly, ensuring no one else can identify Bob as the recipient, and that
+only Bob can control the funds sent to a stealth address. This part of the
+thesis details the application of ZKPs employed to achieve this privacy,
+allowing Alice to complete the transaction without compromising Bob's identity.
 
 \section{High Level Overview}
 
 The main idea behind the solution is a fact that both
-receiver and sender generate a random value. These two values can then
+receiver and sender generate a private random value. These two values can then
 be used to prove to a stealth address that whoever owns these values
 is the owner of the stealth address, and can control it.
 
 Bob, as a receiver, only publishes the hash of his random value. Alice then
-generates her own random value and combines it with Bob's hash to create a
-code which will be submitted to the stealth address contract. After that,
-she encrypts her random value with Bob's public key and publishes it to a
-public registry. Bob then scans the registry, decrypts the value and
-submits a proof to the stealth address contract. This proof proves that
-Bob knows Alice's random value and his own random value, such that the combination
-of those two values is equal to the code submitted by Alice into the stealth
-address contract.
+generates her own random value and hashes it with Bob's hash to create a
+code which will be submitted to the stealth address contract. After that, she
+encrypts her random value, and address of the new stealth address
+contract with Bob's public key. This is called ephemeral key, and it is published
+to a public registry. Bob then scans the registry, decrypts the ephemeral key and
+saves Alice's secret value and the address of the contract with funds from Alice.
+
+When Bob wants to use the funds, he submits a proof to the stealth address
+contract. This proof proves that Bob knows Alice's random value and his own
+random value, such that the combination of hash of Bob's secret value and
+Alice's secret value is equal to the code submitted by Alice into the stealth
+address contract. Also, to prevent others from copying the proof when Bob
+sends it in a transaction, and gaining control over the stealth address with a higher fee
+transaction, the proof must verify the sender of the transaction. In the
+proof, there must be a check that the address with which Bob wants to interact
+with the stealth wallet is the one sending the transaction. Without this check
+a malicious actor could copy the proof and send a transaction with higher fee,
+which would give him access to the address sooner, because it would be placed
+higher in the block. Since only Bob knows both secret values and an address
+from which he will be sending transaction, only he can create a valid
+proof and thus interact with the address.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[scale=0.20]{assets/images/high-level.png}
+    \includegraphics[scale=0.18]{assets/images/high-level.png}
     \caption{High Level Overview}
     \label{fig:hig-level}
 	\cite{ButerinIncompleteGuide}
     \vspace{0.5cm}
 \end{figure}
 
+\pagebreak
 \section{Initial Setup}
 
 Before Alice can send funds to Bob, Bob must first publish his meta stealth
@@ -46,8 +61,6 @@ address to some public location. Bob computes the following:
 \end{itemize}
 
 Bob then publishes his meta stealth address in the form of a tuple $(K, h)$.
-The hash is later used to prove to a stealth address contract that Bob is the
-owner of the address and can spend funds sent to it.
 
 \begin{figure}[h]
     \centering
@@ -60,38 +73,43 @@ owner of the address and can spend funds sent to it.
 
 \section{Sending Funds}
 
-When Alice wishes to send funds to Bob, she must first generate a new stealth
-address. Alice looks up Bob's meta stealth address $(K, h)$ and computes the
-following:
+When Alice wishes to send funds to Bob, she queries meta stealth address registry
+for Bob's meta stealth address $(K, h)$ and does the following:
 
 \begin{itemize}
-	\item A secret value $c$,
-	\item A new random stealth address $SA$,
-	\item An ephemeral key $P = encrypt(value=[c, SA], key=K)$,
-	\item A code $C = hash(h, c)$.
+	\item Generate random secret value $c$,
+    \item precompute address of the stealth address contract $sa$ \cite{stackexchangeAddressEthereum},
+	\item compute $code = hash(h, c)$,
+    \item deploy new stealth wallet contract with code in it,
+    \item fund the deployed contract,
+	\item encrypt ephemeral key $ek = encrypt(value=[c, sa], key=K)$,
+    \item submit the ephemeral key to registry.
 \end{itemize}
-
-Alice then creates a smart contract at the new stealth address $SA$, which contains
-the code $C$ and sends funds to it. Then in the same transaction, Alice sends
-the ephemeral key $P$ to public registry contract, which stores the ephemeral
-keys for all stealth addresses.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[scale=0.20]{assets/images/sending-funds.png}
+    \includegraphics[scale=0.18]{assets/images/sending-funds.png}
     \caption{Sending Funds}
     \label{fig:sending-funds}
 	\cite{ButerinIncompleteGuide}
     \vspace{0.5cm}
 \end{figure}
 
-\section{Scanning for Stealth Addresses}
+\section{Scanning ephemeral keys}
 
-Bob scans for stealth addresses by querying the public registry contract
-from tha last point he scanned. The registry contract returns a list of
-ephemeral keys. Bob then decrypts each ephemeral key with his private key $k$.
-If the ephemeral key is meant for Bob, then it will contain the secret value
-$c$ and the stealth address $SA$.
+Bob queries ephemeral key registry for keys from the last point he scanned.
+The registry contract returns a list of ephemeral keys. Bob then tries to decrypt
+each ephemeral key with his private key $k$. If the ephemeral key is meant for
+Bob, then the decryption will succeed, and the decrypted value will contain
+the secret value $c$ from Alice and the stealth address $sa$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.3]{assets/images/ephemeral-keys.png}
+    \caption{Scanning ephemeral keys}
+    \label{fig:scanning-ephemeral-keys}
+    \vspace{0.5cm}
+\end{figure}
 
 \section{Gaining control of Stealth Addresses}
 
