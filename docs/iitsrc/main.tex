@@ -41,10 +41,22 @@
     validation of data without revealing the data itself, making it ideal for
     secure and private applications in blockchain networks. The focus of this
     study is a design and an implementation of a proof of concept Stealth
-    Address scheme using ZKPs. This scheme will allow any sender to derive a
+    Address scheme using ZKPs. This scheme will allow any sender to create a
     stealth address from recipients public data. Only the recipient has control
     over this address, yet it does not leak any information about who the
     recipient is.
+
+    The core innovation of this work lies in replacing traditional elliptic
+    curve cryptography, often used in stealth address schemes, with ZKPs. This
+    substitution provides a trustless and privacy-preserving way to prove
+    stealth address ownership without revealing sensitive details.
+
+    This study advances the field of blockchain privacy by demonstrating the
+    feasibility and advantages of incorporating ZKPs into stealth address
+    schemes. It offers insights into the design of privacy-centric
+    cryptocurrency solutions and highlights the potential of ZKPs to enhance
+    anonymity and security on blockchains.
+
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -377,7 +389,8 @@
 
     Bob, as a receiver, publishes the hash of his random value to a public
     registry. With this hash he also publishes his public key, which corresponds
-    to his private key. This tuple is Bob's meta stealth address \ref{fig:bobs-meta-address}.
+    to his private key. This tuple is Bob's meta stealth address, visualized in Figure
+    \ref{fig:bobs-meta-address}.
 
     \begin{figure}[h]
         \centering
@@ -392,11 +405,11 @@
     contract with this code in it, and amount of funds that she wanted to send
     to Bob. After that, she encrypts her random value with Bob's public key,
     this encrypted value is called ephemeral key. Alice publishes it to a
-    public registry \ref{fig:sending-funds}. 
+    public registry. This whole process is depicted in Figure \ref{fig:sending-funds}. 
 
     \begin{figure}[h]
         \centering
-        \includegraphics[scale=0.19]{./assets/images/sending-funds.png}
+        \includegraphics[scale=0.17]{./assets/images/sending-funds.png}
         \caption{Alice sends funds}
         \label{fig:sending-funds}
     \end{figure}
