@@ -292,13 +292,13 @@
     \subsection{SNARKs}
 
         After defining an arithmetic circuit, it can be transformed into a SNARK,
-        a Succinct Non-interactive ARgument of Knowledge. The succint part means that
-        the size of the proof must be sublinear in size of witness (when talking about
+        a Succinct Non-interactive ARgument of Knowledge. The succinct part means that
+        the size of the proof must be sub-linear in size of witness (when talking about
         strong succinctness, the proof size is logarithmic in size of circuit), and
-        the verification must be sublinear in size of circuit and linear in size of
+        the verification must be sub-linear in size of circuit and linear in size of
         public input (when talking about strong efficiency, the verification time is
         logarithmic in size of circuit and linear in size of public input).
-        A SNARK is a tripple of algorithms $(Setup, Prove, Verify)$\cite{Groth16}.
+        A SNARK is a triple of algorithms $(Setup, Prove, Verify)$\cite{Groth16}.
 
         \begin{enumerate}
             \item $Setup$ takes
@@ -324,7 +324,6 @@
         Verifier can interactively query any of the commitments and prover must
         provide the evaluation of the function at the queried point, and a proof
         that the evaluation is correct\cite{SassonIOPs}.
-
 
     \subsection{Stealth addresses}
 
@@ -370,7 +369,7 @@
     receiver and sender generate a random value. These two values can then
     be used to prove to a stealth address that whoever owns these values
     is the owner of the stealth address, and can control it. High level
-    overview of the whole process is shown in Figure \ref{fig:high-level-flo}.
+    overview of the whole process is shown in Figure \ref{fig:high-level-flow}.
 
     Bob, as a receiver, publishes the hash of his random value to a public
     registry. With this hash he also publishes his public key, which corresponds
@@ -498,42 +497,38 @@
 
 \section{Conclusion and Future Work}
 
-    This study opens up few avenues for future research and improvements
-    to this proof of concept:
+    The work investigated the application of Zero-Knowledge Proofs (ZKPs)
+    in stealth addresses schema on Ethereum. The primary research
+    goal was to design and implement a proof of concept stealth address schema
+    which utilizes ZKPs to achieve privacy of transactions.
+    The solution aimed to protect a recipient's identity (Bob) while enabling
+    a sender (Alice) to transfer funds without any way of identifying the
+    recipient.
 
+    This study advances the field of blockchain privacy by demonstrating the
+    feasibility and advantages of incorporating ZKPs into stealth address
+    protocols. The core innovation lies in replacing traditional elliptic
+    curve cryptography with ZKPs for proving stealth address ownership. This
+    offers a different way of achieving wanted privacy properties compared to
+    existing methods. Also it contributes to the growing body of knowledge
+    surrounding ZKPs and their applications in blockchain technology,
+    highlighting the potential of ZKPs to enhance privacy on blockchains.
+
+    In conclusion, this research work demonstrates the feasibility and
+    advantages applying ZKPs into stealth address schema. The privacy
+    protection provided by ZKPs in this context highlights a promising
+    direction for strengthening anonymity in cryptocurrency transactions.
+
+    Few avenues for future research and improvements to this proof of concept:
     \begin{enumerate}
         \item Adding functionality, such as fractional withdrawals, ERC20 token transfers,
-        \item How to setup initial parameters of a circuit to achive trustworthiness
+        \item How to setup initial parameters of a circuit to achieve trustworthiness
                 and security,
         \item Formal proof of security and soundness of proposed solution,
         \item Smart contract optimizations via gas optimizations in the Solidity code,
         \item Exploring different ZKP proof systems with comparisons and benchmarks,
         \item Incorporate recoverability into stealth wallets.
     \end{enumerate}
-
-    The work investigated the application of Zero-Knowledge Proofs (ZKPs)
-    in stealth addresses schema on Ethereum. The primary research
-    goal was to design and implement a proof of concept stealth address schema
-    which utilizes ZKPs to achieve privacy of transactions.
-    The solution aimed to protect a recipient's identity (Bob) while enabling
-    a sender (Alice) to transfer funds without any way of identitying the
-    recipient.
-
-    The implementation demonstrates the core concept of a
-    ZKP-based stealth address schema. Senders deploy stealth wallets
-    associated with a code derived from a combination of their secret value
-    and the recipient's hashed secret. The recipient can generate ZKPs,
-    proving knowledge of both secret values, to withdraw funds from their
-    corresponding stealth wallets. The design also ensures that proofs can
-    only be valid when submitted by the specific recipient who owns both
-    secret values. It is important to note that the current implementation
-    serves as a proof of concept, and further development
-    would be necessary for real-world deployment as a full-featured wallet. 
-
-    In conclusion, this research work demonstrates the feasibility and
-    advantages applying ZKPs into stealth address schema. The privacy
-    protection provided by ZKPs in this context highlights a promising
-    direction for strengthening anonymity in cryptocurrency transactions.
 
 \begin{thebibliography}{00}
     \bibitem{goldreich1991proofs} O. Goldreich, S. Micali, and A. Wigderson, “Proofs that yield nothing but their validity or all languages in NP have zero-knowledge proof systems,” Journal of the ACM (JACM), vol. 38, no. 3, pp. 690–728, 1991.
