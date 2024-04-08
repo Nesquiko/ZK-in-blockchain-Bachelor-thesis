@@ -37,11 +37,11 @@
 \maketitle
 
 \begin{abstract}
-    Zero Knowledge Proofs (ZKP) are a cryptographic primitives which enables a
+    Zero Knowledge Proofs (ZKP) are a cryptographic primitives enabling a
     validation of data without revealing the data itself, making it ideal for
     secure and private applications in blockchain networks. The focus of this
-    study is a design and an implementation of a proof of concept Stealth
-    Address scheme using ZKPs. This scheme will allow any sender to create a
+    study is a design and an implementation of a proof of concept stealth
+    address scheme using ZKPs. This scheme will allow any sender to create a
     stealth address from recipients public data. Only the recipient has control
     over this address, yet it does not leak any information about who the
     recipient is.
@@ -314,7 +314,7 @@
                 proof $\pi$ and returns $accept/reject$.
         \end{enumerate}
 
-        SNARKS combine two cryptographic primitives, a functional commitment scheme
+        SNARKs combine two cryptographic primitives, a functional commitment scheme
         and an interactive oracle proof, in order create and verify the proof.
         Functional commitment scheme is a cryptographic primitive, which allows the
         prover to commit to a function $f$ and the verifier can query the commitment and
@@ -452,31 +452,31 @@
     \begin{itemize}
         \item \textbf{Groth16}: The scheme relies on the completeness, soundness,
             and zero-knowledge properties of the Groth16 proof system.
-        \item \textbf{Trusted Setup}: The security of generated public parameters
+        \item \textbf{Trusted setup}: The security of generated public parameters
             depends on the integrity of the trusted setup process. The original
             parameters must be securely destroyed.
-        \item \textbf{Hash Function}: A collision-resistant hash function is
+        \item \textbf{Hash function}: A collision-resistant hash function is
             essential to prevent adversaries from finding alternative values
             that could mimic a legitimate owner's secret.
-        \item \textbf{Elliptic Curve Cryptography}: The security of Secp256k1 is
+        \item \textbf{Elliptic curve cryptography}: The security of Secp256k1 is
             assumed.
-        \item \textbf{Secrecy of Secret Values}: Both the recipient's (Bob's)
+        \item \textbf{Secrecy of secret values}: Both the recipient's (Bob's)
             and the sender's (Alice's) secret values must remain protected
             to ensure the scheme's integrity.
     \end{itemize}
 
-    Under these assumptions, the Stealth Address ZKP Scheme enables the
+    Under these assumptions, the stealth address ZKP scheme enables
     secure and anonymous transfer of assets to a recipient. The recipient
     has guaranteed exclusive control over their stealth addresses.
 
     However, it is important to highlight the following potential weak points:
     \begin{itemize}
-        \item \textbf{Compromised Trusted Setup}: If the original parameters from
+        \item \textbf{Compromised trusted setup}: If the original parameters from
             Groth16's setup are not destroyed, false proofs could be generated.
-        \item \textbf{Collision in Hash Function}: If a collision is found in
+        \item \textbf{Collision in hash function}: If a collision is found in
             the hash function, funds from a single stealth address could be at
             risk.
-        \item \textbf{Exposure of Secret Values}: Leaking both of the
+        \item \textbf{Exposure of secret values}: Leaking both of the
             recipient's secret and the sender's secret can lead to
             unauthorized access or loss of funds.
     \end{itemize}
@@ -485,7 +485,7 @@
 
     The stealth address ZKP scheme successfully enables private transactions.
     It effectively hides the recipient's identity, yet he/she still has control
-    over received funds, thanks to zero-knowledge proofs. They also ensuring no
+    over received funds, thanks to zero-knowledge proofs. They also ensure no
     direct link between transactions and the recipient can be created.
     Simultaneously, only the intended recipient can generate the necessary
     ZKPs to access funds, through possessing both secret values. This
@@ -525,7 +525,8 @@
         \item How to setup initial parameters of a circuit to achieve trustworthiness
                 and security,
         \item Formal proof of security and soundness of proposed solution,
-        \item Smart contract optimizations via gas optimizations in the Solidity code,
+        \item Gas, performance comparisons between different schemas.
+        \item Design optimizations,
         \item Exploring different ZKP proof systems with comparisons and benchmarks,
         \item Incorporate recoverability into stealth wallets.
     \end{enumerate}
