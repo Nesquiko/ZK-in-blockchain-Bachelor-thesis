@@ -337,7 +337,7 @@
         This new stealth address is not be linked to the meta stealth address,
         and thus the recipient's identity is protected.
 
-        This sutdy showcases how to swap elliptic curve cryptography for ZKPs.
+        This study showcases how to swap elliptic curve cryptography for ZKPs.
         They can be used to prove that the recipient owns the stealth address, and
         thus can spend the funds. The proof can be sent from any address, but only
         the recipient can generate it, because only he/she knows the private data
@@ -440,6 +440,47 @@
         \caption{High level overview}
         \label{fig:high-level-flow}
     \end{figure}
+
+\section{Discussion on security}
+
+    This section discuses the security properties of the proposed stealth address
+    ZK-SNARK scheme. A secure scheme should ensure both the confidentiality
+    of recipient's identity and the recipient's exclusive control over their
+    stealth addresses. The scheme is analyzed under various assumptions
+    regarding cryptographic primitives and the underlying protocols.
+
+    \textbf{Assumptions}
+    \begin{itemize}
+        \item \textbf{Groth16}: The scheme relies on the completeness, soundness,
+            and zero-knowledge properties of the Groth16 proof system.
+        \item \textbf{Trusted Setup}: The security of generated public parameters
+            depends on the integrity of the trusted setup process. The original
+            parameters must be securely destroyed.
+        \item \textbf{Hash Function}: A collision-resistant hash function is
+            essential to prevent adversaries from finding alternative values
+            that could mimic a legitimate owner's secret.
+        \item \textbf{Elliptic Curve Cryptography}: The security of Secp256k1 is
+            assumed.
+        \item \textbf{Secrecy of Secret Values}: Both the recipient's (Bob's)
+            and the sender's (Alice's) secret values must remain protected
+            to ensure the scheme's integrity.
+    \end{itemize}
+
+    Under these assumptions, the Stealth Address ZKP Scheme enables the
+    secure and anonymous transfer of assets to a recipient. The recipient
+    has guaranteed exclusive control over their stealth addresses.
+
+    However, it is important to highlight the following potential weak points:
+    \begin{itemize}
+        \item \textbf{Compromised Trusted Setup}: If the original parameters from
+            Groth16's setup are not destroyed, false proofs could be generated.
+        \item \textbf{Collision in Hash Function}: If a collision is found in
+            the hash function, funds from a single stealth address could be at
+            risk.
+        \item \textbf{Exposure of Secret Values}: Leaking both of the
+            recipient's secret and the sender's secret can lead to
+            unauthorized access or loss of funds.
+    \end{itemize}
 
 \section{Conclusion and Future Work}
 
