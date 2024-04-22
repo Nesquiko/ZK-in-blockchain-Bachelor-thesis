@@ -18,14 +18,16 @@
 
 \Large
 
-\begin{multicols}{2} % begin two columns
+\begin{multicols}{2}
 
 \section*{Introduction}
 
     Zero Knowledge Proofs (ZKPs) provide a unique way to prove information without
-    actually revealing the information itself. This makes them ideal for
+    actually revealing the information itself\cite{Goldwasser1989, goldreich1991proofs}.
+    This makes them ideal for
     enhancing anonymity and privacy in blockchain networks. This work
-    explores the use of ZKPs to create stealth addresses on Ethereum blockchain.
+    explores the use of ZKPs to create stealth addresses on Ethereum blockchain
+    \cite{ButerinIncompleteGuide}.
 
     ZKPs replace elliptic curve cryptography in stealth address schemas.
     This provides another method for proving ownership of a stealth
@@ -42,14 +44,11 @@
             proof of stealth address ownership without compromising privacy.
     \end{enumerate}
 
-\section{Solution Design}
-
-    Public blockchains expose transaction details, compromising privacy.
-    stealth addresses enable anyone to send private transactions,
-    while hiding recipient identities.
+\section*{Solution Design}
 
     The core principle behind the solution is that both receiver
-    and sender generate a random value. These two values can then
+    and sender generate a random value\cite{ButerinIncompleteGuide}.
+    These two values can then
     be used to prove to a stealth address that whoever owns these
     values is the owner of the stealth address, and can control it.
 
@@ -59,7 +58,7 @@
     \ref{fig:bobs-meta-address}.
 
     \begin{center}\vspace{1cm}
-        \includegraphics[width=0.5\linewidth]{../iitsrc/assets/images/meta-stealth-address.png}
+        \includegraphics[width=0.7\linewidth]{./assets/meta-stealth-address.png}
         \captionof{figure}{Bob's Meta Stealth Address}
         \label{fig:bobs-meta-address}
     \end{center}\vspace{1cm}
@@ -74,7 +73,7 @@
 
     \begin{center}\vspace{1cm}
         \centering
-        \includegraphics[width=0.7\linewidth]{../iitsrc/assets/images/sending-funds.png}
+        \includegraphics[width=0.5\linewidth]{../iitsrc/assets/images/sending-funds.png}
         \captionof{figure}{Alice sends funds}
         \label{fig:sending-funds}
     \end{center}\vspace{1cm}
@@ -85,7 +84,7 @@
 
     \begin{center}\vspace{1cm}
         \centering
-        \includegraphics[width=0.5\linewidth]{../iitsrc/assets/images/scanning-ephemeral-keys.png}
+        \includegraphics[width=0.7\linewidth]{./assets/scanning-ephemeral-keys.png}
         \captionof{figure}{Bob scans ephemeral keys}
         \label{fig:scanning-ephemeral-keys}
     \end{center}\vspace{1cm}
@@ -99,63 +98,50 @@
 
     \begin{center}\vspace{1cm}
         \centering
-        \includegraphics[width=0.5\linewidth]{../iitsrc/assets/images/interating-with-wallet.png}
+        \includegraphics[width=0.4\linewidth]{../iitsrc/assets/images/interating-with-wallet.png}
         \captionof{figure}{Bob's interaction with wallet}
         \label{fig:wallet-interaction}
     \end{center}\vspace{1cm}
 
-    \begin{minted}[fontsize=\small]{c}
-pragma circom 2.0.0;
+    The proof is computed and validated according to this Circom circuit:
 
-include "./circomlib/circuits/poseidon.circom";
+    \begin{center}\vspace{1cm}
+        \centering
+        \begin{minted}[fontsize=\small]{c}
+            pragma circom 2.0.0;
+            include "./circomlib/circuits/poseidon.circom";
 
-template Ownership() {
-    signal input owner_secret;
-    signal input sender_secret;
-    signal input code;
-    signal input withdrawee_address;
-    signal input msg_sender;
+            template Ownership() {
+                signal input owner_secret;
+                signal input sender_secret;
+                signal input code;
+                signal input withdrawee_address;
+                signal input msg_sender;
 
-    log("input owner_secret:", owner_secret);
-    log("input sender secret:", sender_secret);
-    log("input code:", code);
-    log("input withdrawee_address:", withdrawee_address);
-    log("input msg_sender:", msg_sender);
+                component owner_secret_poseidon = Poseidon(1);
+                owner_secret_poseidon.inputs <== [owner_secret];
 
-    component owner_secret_poseidon = Poseidon(1);
-    owner_secret_poseidon.inputs <== [owner_secret];
-    log("calculated owner_secret hash:", owner_secret_poseidon.out);
+                component code_poseidon = Poseidon(2);
+                code_poseidon.inputs <== [owner_secret_poseidon.out, sender_secret];
 
-    component code_poseidon = Poseidon(2);
-    code_poseidon.inputs <== [owner_secret_poseidon.out, sender_secret];
-    log("calculated code:", code_poseidon.out);
+                code === code_poseidon.out;
+                msg_sender === withdrawee_address;
+            }
+            component main {public [code, msg_sender]} = Ownership();
+        \end{minted}
+        \captionof{figure}{Circom circuit for proving ownership}
+        \label{fig:circuit}
+    \end{center}\vspace{1cm}
 
-    code === code_poseidon.out;
-    msg_sender === withdrawee_address;
-}
+\section*{Conclusions}
 
-component main {public [code, msg_sender]} = Ownership();
-    \end{minted}
+    This work demonstrates a successful use of Zero-Knowledge Proofs
+    to enhance privacy on Ethereum blockchain. By
+    utilizing ZKPs to prove stealth address ownership, it offers a novel
+    approach to protect transaction participants identities. This work
+    highlights the potential of ZKPs to significantly improve
+    blockchain anonymity.
 
-\section{Conclusions || Discussion}
-
-O manual do \TeX~\cite{knuth1986} pode ser usado para aprendê-lo, e o livro do
-Lamport~\cite{lamport1994} para aprender o \LaTeX, mas se quiser ir a fundo tem
-que ver como o \TeX quero o os parágrafos em linhas~\cite{knuth1981}.
-
-Two typesLorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-do eiusmod tempor incididunt ut labore et dolore magna aliqua. Uore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
-
-\begin{itemize}
-\item Pellentesque eget orci eros. Fusce ultricies, tellus et
-  pellentesque fringilla, ante massa luctus libero, quis tristique
-  purus urna nec nibh. 
-\item Vestibulum sem ante, hendrerit a gravida ac, blandit quis magna.
-\end{itemize}
 
 \bibliographystyle{plain}
 \bibliography{refs}

@@ -98,7 +98,7 @@
 
 \newcommand\printheader{
     \begin{minipage}[ht]{0.15\linewidth}
-        \includegraphics[trim={0 20 0 30}, clip, scale=3.5]{fiit_logo.png}
+        \includegraphics[trim={0 30 0 40}, clip, scale=3.5]{fiit_logo.png}
     \end{minipage}\vspace{2.5cm}
     \begin{minipage}[ht]{0.35\linewidth}\bf
         {\Large Slovak University of Technology}\\[0.3cm]
