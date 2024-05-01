@@ -1,12 +1,12 @@
-\chapter{Proof of security}
+\chapter{Discussion on security}
 
-In this chapter, the security of the Stealth Address ZKP Scheme is informally proven.
+In this chapter, the security of the Stealth Address ZKP Scheme is informally discussed.
 
 \section{Assumptions}
 
 \subsection{Groth16}
 
-It is assumed that the pairing-based ZK-SNARK system Groth16 has these properties:
+It is assumed that the pairing-based ZK-SNARK system Groth16\cite{Groth16} has these properties:
 \begin{enumerate}
     \item Completness - honest prover will always convince honest verifier
     \item Soundness - dishonest prover will not convince honest verifier
@@ -25,7 +25,7 @@ learn Bob's identity, hence it would no longer be a stealth address.
 
 \subsection{Trusted Setup}
 
-The setup phase of Groth16 includes a trusted setup in order to generate the
+The setup phase of Groth16\cite{Groth16} includes a trusted setup in order to generate
 public parameters. The premise of the trusted setup is that the original parameters
 used to create the public ones are thrown away, if not then the party which
 produced public parameters can forge false proofs, yet the verifier would
@@ -34,7 +34,6 @@ recognize them as valid ones.
 In context of this work, if a party creating the circuit didn't delete the
 original parameters, then it could prove malicious statements about ownership
 of the secret values needed to gain control over any stealth address.
-
 
 \subsection{Collision resistant hash function}\label{crhf}
 
@@ -86,7 +85,7 @@ If an adversary somehow learns Alice's secret value $c$, the corresponding
 address is still safe, because, the attacker does not know which stealth address
 it is, and if somehow learned it, he/she still does not have Bob's secret value.
 
-\section{Proof}
+\section{Discussion summary}
 
 Given these assumptions, the presented Stealth Address ZKP Scheme can be used to
 send assets to a recipient, without leaking any information about him/her. And
