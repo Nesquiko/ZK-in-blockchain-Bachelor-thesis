@@ -6,7 +6,7 @@ the actual content of the statement. This characteristic is crucial for
 maintaining trust between parties while also preserving privacy \cite{goldreich1991proofs}.
 
 The concept of ZKPs was first introduced in a 1989 research paper, "The
-Knowledge Complexity of Interactive Proof Systems."\cite{Goldwasser1989}.
+Knowledge Complexity of Interactive Proof Systems." \cite{Goldwasser1989}.
 This work describes how in traditional proofs, such as demonstrating a graph
 is Hamiltonian, more information is typically revealed than just the truth of
 the theorem. This paper develops a computational complexity theory focusing
@@ -40,8 +40,8 @@ verified in a very short time by a computationally bounded verifier.
 
 This thesis extends the application of ZKPs to the concept of stealth
 addresses in blockchain. Such as those outlined in Vitalik Buterin's article "An
-Incomplete Guide to Stealth Addresses."\cite{ButerinIncompleteGuide}, or
-in the Peter Todd's proposal to Bitcoin mailing list\cite{ToddStealthAddresses}.
+Incomplete Guide to Stealth Addresses. "\cite{ButerinIncompleteGuide}, or
+in the Peter Todd's proposal to Bitcoin mailing list \cite{ToddStealthAddresses}.
 Stealth addresses are critical for privacy on blockchains, allowing assets to
 be transferred without revealing the recipient's identity and making
 it difficult to link transactions to specific individuals.
@@ -54,4 +54,19 @@ schema. From this data Alice computes a new stealth address that only Bob can
 control, and sends the assets to that newly generated address. Bob can then
 access these assets from another address, only by providing a ZKP of given
 address ownership.
+
+\section{Document structure}
+
+The rest of this thesis is structured as follows. Chapter \ref{chapter:analysis}
+contains an in-depth analysis of the cryptographic principles that underpin ZKPs,
+and how they can be utilized to construct a stealth address scheme. Chapter
+\ref{chapter:solution} describes the design of the solution, explaining the process
+of how the stealth address scheme is implemented. Chapter \ref{chapter:security}
+discusses the security considerations of the ZKP stealth address scheme, listing
+the assumptions made and potential vulnerabilities. Chapter \ref{chapter:implementation}
+outlines the implementation details of the scheme, covering the tools and technologies
+used. Chapter \ref{chapter:related} explores related work in the field, highlighting
+existing research and projects that have contributed to the development of ZKPs and
+stealth addresses. Finally, Chapter \ref{chapter:conclusion} concludes the thesis by
+summarizing the findings and proposing potential avenues for future work.
 
