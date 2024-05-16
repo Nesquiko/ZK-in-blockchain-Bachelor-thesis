@@ -8,17 +8,58 @@ as a cryptography for nerds anymore.
 On the other hand, there are not many contributions to the stealth address
 ecosystem. This field gets some traction, for example, work done by
 Fan, Jia and Wang, Zhen and Luo, Yili and Bai, Jian and Li, Yarong and Hao, Yao
-\cite{FanJiaWang2019}
-proposes new stealth address scheme built on bilinear mappings.
+\cite{FanJiaWang2019} introduce a stealth address scheme designed to
+enhance user privacy in blockchain transactions. The scheme aims to address
+the limitations of existing solutions, such as the need for users to manage
+multiple key pairs or engage in additional private communication before each
+transaction. In their approach, a user only needs to maintain a single key
+pair for initial certification, simplifying key management and reducing
+storage costs. The sender creates a one-time transaction address and attaches
+it to the transaction, while the receiver utilizes their private key to verify
+the transaction directly from the blockchain, eliminating the need for a
+separate private channel. The scheme also offers flexibility for regulation,
+allowing transactions to be either fully or partially regulated based on
+security requirements.
+
+Or, Wang \cite{Wang2023} introduced the concept of Fast Stealth Addresses (FSAs)
+to improve the search efficiency of stealth address schemes in blockchain transactions.
+Their approach aims to overcome the linear search time required in existing schemes
+by allowing constant recognition time to determine if a block contains a recipient's
+transactions and logarithmic search time to locate the specific transactions.
+The authors provide a generic construction of the FSA scheme under subgroup membership
+assumptions related to factoring and instantiate concrete schemes based on specific
+number-theoretic assumptions. They also formalize the security model of an FSA
+scheme and provide provable security analysis.
 
 There are two protocols on Ethereum that implement stealth addresses.
-First one is called Umbra\cite{umbra}, and it is based on elliptic curve
-cryptography.
-
-The second one is called Nocturne\cite{nocturne}. The protocol is a mix of
+First one is called Nocturne \cite{nocturne}. The protocol is a mix of
 elliptic curve cryptography and ZKPs with few intermediate smart contracts.
 In this protocol you lock your funds in the Nocturne ecosystem, in which
 new stealth addresses are created with Elliptic curve stealth addresses scheme,
 and you access your funds by submitting ZKPs. However according to their
 \href{https://twitter.com/nocturne_xyz/status/1749510390906511693}{Twitter post}
 they are discontinuing their protocol.
+
+The second one is called Umbra \cite{umbra}. Umbra is a protocol on Ethereum
+that implements stealth addresses using elliptic curve cryptography. In this
+protocol, the recipient a private keys. The sender generates a random number,
+encrypts it using the recipient's public key, and then
+computes the stealth address from the recipient's public key and the random
+number. The encrypted random number, ephemeral public key, and stealth address
+are then published. The recipient can scan these announcements, decrypt the
+random number using their private key, and check if the derived stealth
+address matches the one in the announcement. If it does, they can then use
+their spending key to access the funds.
+
+Kovács and Seres \cite{Kovacs2023} conducted an analysis of Umbra's recipient
+anonymity guarantees on Ethereum and its layer-2 solutions. They identified four
+heuristics based on user behavior that could compromise the anonymity and
+linkability of Umbra transactions. These heuristics exploit patterns such as
+the reuse of registrant addresses, the overlap of sender and receiver
+addresses, the collection of multiple payments to a single address, and unique
+transaction fees. The study found that a significant portion of Umbra
+transactions could be deanonymized using these heuristics, raising concerns
+about the protocol's privacy in practice. The authors suggest countermeasures
+such as avoiding address reuse and using different addresses for different
+on-chain activities to mitigate these risks.
+
