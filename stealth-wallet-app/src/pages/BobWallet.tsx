@@ -126,7 +126,7 @@ const BobsWallet: Component = () => {
             }
           >
             <h1 class="text-lg p-2 rounded-t-lg bg-violet-300 flex justify-between items-center">
-              <span>Bob's Meta Stealth Addresses</span>
+              <span>Bob's Stealth Addresses</span>
               <i
                 class="fa-solid fa-rotate fa-lg cursor-pointer"
                 onClick={refetchStealthWallets}

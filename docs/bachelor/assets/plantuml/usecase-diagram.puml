@@ -1,0 +1,48 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor Sender as s
+actor Recipient as r
+component "Stealth wallet contract" as wallet
+component "Proof verification contract" as verifier
+
+rectangle "Req. 1: Meta Stealth Address Retrieval" {
+  s -- (Query meta stealth addresses)
+  (Store meta stealth addresses) -- r
+}
+
+rectangle "Req. 2: Ephemeral Key Exchange" {
+  s -- (Store ephemeral key)
+  (Query ephemeral key) as query_key
+  query_key -- r
+}
+
+rectangle "Req. 3: Stealth Wallet Deployment" {
+  (Deploy stealth wallet contract with funds) as deploy
+  s -- deploy
+  deploy <.. (Compute code) : include
+  wallet -- deploy
+}
+
+rectangle "Req. 4: Zero-Knowledge Proof Generation" {
+  (Generate ZK proof of ownership) as gen
+  (Decrypt sender's secret from Ephemeral key) as decrypt
+  decrypt ..> gen : include
+  gen -- r
+}
+
+
+rectangle "Req. 5: Zero-Knowledge Proof Verification" {
+  (Verify proof) as verify
+  verifier -- verify
+  wallet -- verify
+}
+
+rectangle "Req. 6: Stealth Wallet Withdrawal" {
+  (Withdraw funds) as withdraw
+  withdraw -- r
+  verify ..> withdraw : include
+}
+
+@enduml
