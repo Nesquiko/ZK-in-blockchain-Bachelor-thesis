@@ -24,8 +24,6 @@
 % Initialize document
 \include{initialize}
 
-% TODO https://www.fiit.stuba.sk/buxus/docs/organizacia_studia/pokyny/ZP-clenenie-pokyny_2022.pdf
-%   https://www.fiit.stuba.sk/studium/bakalarsky-projekt/bp.html?page_id=1862
 % Cover & title page
 \include{pages/titlepage}
 
@@ -33,17 +31,13 @@
 \newpage
 \thispagestyle{empty}
 \begin{center}
-    \includegraphics[scale=0.65]{assets/assignment.png}
+    \includegraphics[width=\textwidth]{assets/assignment.pdf}
 \end{center}
 \newpage
+\emptypage
 
 % Declaration of honor
-% TODO
-% \include{pages/declaration}
-
-% Acknowledgements
-% TODO
-% \include{pages/acknowledgements}
+\include{pages/declaration}
 
 % Annotation
 \include{pages/annotation}
@@ -58,9 +52,6 @@
 
 % List of figures
 \listoffigures
-
-% List of tables
-%\listoftables
 
 % List of abbreviations
 \include{pages/abbreviations}
@@ -105,6 +96,6 @@
 
 \include{pages/time_schedule}
 
-% \include{pages/digital_medium}
+\include{pages/digital_medium}
 
 \end{document}
