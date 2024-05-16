@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity 0.8.20;
 
 import {Groth16Verifier} from "./Verifier.sol";
 
 contract StealthWallet {
+    error StealthWallet__ZeroVerifierAddress();
     error StealthWallet__AmountExceedsBalance();
     error StealthWallet__WithdrawFailed();
     error StealthWallet__InvalidProof();
@@ -19,6 +20,9 @@ contract StealthWallet {
 
     constructor(bytes32 _code, address verifierAddr) payable {
         code = _code;
+        if (verifierAddr == address(0)) {
+            revert StealthWallet__ZeroVerifierAddress();
+        }
         verifier = Groth16Verifier(verifierAddr);
     }
 
@@ -26,7 +30,7 @@ contract StealthWallet {
 
     fallback() external payable {}
 
-    function withdraw(address to, uint256 amount, OwnershipProof calldata proof) public returns (bool) {
+    function withdraw(address to, uint256 amount, OwnershipProof calldata proof) external returns (bool) {
         if (amount > address(this).balance) {
             revert StealthWallet__AmountExceedsBalance();
         }

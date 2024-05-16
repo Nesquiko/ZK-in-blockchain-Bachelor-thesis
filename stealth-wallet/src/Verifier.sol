@@ -18,7 +18,7 @@
     along with snarkJS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity 0.8.20;
 
 contract Groth16Verifier {
     // Scalar field size
@@ -62,7 +62,7 @@ contract Groth16Verifier {
         uint256[2][2] calldata _pB,
         uint256[2] calldata _pC,
         uint256[2] calldata _pubSignals
-    ) public view returns (bool) {
+    ) external view returns (bool) {
         assembly {
             function checkField(v) {
                 if iszero(lt(v, q)) {
