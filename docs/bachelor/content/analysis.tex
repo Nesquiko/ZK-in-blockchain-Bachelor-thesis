@@ -307,9 +307,35 @@ This can be used to prove that two polynomials are equal. Given two polynomials
 $f, g$, we can evaluate $h = f - g$ at a random point $x$. If $h(x) = 0$, then
 $f(x) - g(x) = 0 \Longrightarrow f(x) = g(x) \Longrightarrow f = g$ with high probability.
 
-\section{Stealth addresses}
+\section{Ethereum}
 
-Ethereum is a public blockchain, where all transactions are visible to anyone,
+Ethereum is a decentralized, open-source blockchain, with possibility of
+running arbitrary Turing complete code as specified by the EVM specification \cite{ethereumEthereumVirtual}.
+This allows for the creation of smart contracts. Smart contracts are programs
+stored on the Ethereum blockchain and their functionality can be invoked by anyone,
+as long as the smart contracts code allows it.
+
+In the Ethereum ecosystem, addresses serve as some sort of an unique identifiers
+for accounts. Ethereum addresses are 42-character hexadecimal addresses that
+identify an Ethereum account. These addresses are derived from the last 20
+bytes of the hashed public key associated with the private key. This private key
+is used to control the account. These bytes are written in hexadecimal format
+and to indicate this explicitly, "0x" is appended.
+
+Ethereum wallets are software applications that store private keys and
+interact with the Ethereum blockchain, enabling users to send and receive
+Ether and other assets on the network. They are controlled by associated
+private keys, which are used to sign transactions.
+
+Transactions on the Ethereum network are how users transfer Ether or interact
+with smart contracts. Each transaction includes the sender's and recipient's
+addresses, the value being transferred, a transaction fee, and
+optionally, input data for smart contracts. These transactions are grouped
+into blocks, which are then added to the blockchain.
+
+\subsection{Stealth addresses}
+
+Since Ethereum is a public blockchain, all transactions are visible to anyone,
 and all addresses are visible to anyone. This is a problem for privacy, because
 if someone knows your address, they can see all your transactions.
 
@@ -327,12 +353,11 @@ from which senders can generate a new stealth address. This new stealth address
 can not be linked to the meta stealth address, and thus the recipient's identity
 is protected. Additionally, senders must publish some information, which allows
 the recipient to gain control over stealth address to which the sender
-sent funds\cite{Yu2020}.
+sent funds \cite{Yu2020}.
 
 ZKPs can be used to prove that the recipient owns the stealth address, and
 thus can spend the funds. The proof can be sent from any address, but only
 the recipient can generate it, because only he/she knows the private data
 that is required to generate the proof. The zero knowledge property of the
 proof ensures that the recipient's identity is not revealed.
-
 
