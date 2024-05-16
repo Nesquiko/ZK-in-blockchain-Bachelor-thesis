@@ -22,40 +22,6 @@ features can be implemented in future work.
     \vspace{0.5cm}
 \end{figure}
 
-\section{Requirements}
-
-As mentioned earlier, the implementation is not meant for a full featured wallet,
-only a proof of concept one and these are the requirements:
-
-\subsection*{Functional requirements}
-\begin{itemize}
-    \item \textbf{Meta Stealth Address Retrieval:} The system must enable senders
-        to query and retrieve meta stealth addresses from the registry.
-    \item \textbf{Ephemeral Key Exchange:} The system needs a mechanism for senders
-        to submit ephemeral keys and owners to query them.
-    \item \textbf{Stealth Wallet Deployment:} Senders must be able to deploy
-        stealth wallet smart contracts, specifying the code and depositing funds.
-    \item \textbf{Zero-Knowledge Proof Generation:} The system must provide a way
-        for owners to generate Zero-Knowledge Proofs (ZKPs) that demonstrate
-        ownership.
-    \item \textbf{Zero-Knowledge Proof Verification:} Smart contracts must be able
-        to verify the ZKPs submitted by owners.
-    \item \textbf{Stealth Wallet Withdrawal:} Upon successful ZKP
-        verification, the smart contract must execute a withdrawal, transferring
-        the entire stealth wallet balance to the owner's designated address.
-\end{itemize}
-
-\subsection*{Non-functional requirements}
-\begin{itemize}
-    \item \textbf{Security:} The system must prioritize the protection of private keys.
-    \item \textbf{Privacy:} Stealth addresses and the link between owners and
-        their stealth wallets should be obscured to preserve on-chain privacy.
-    \item \textbf{Compatibility:} The system should be compatible with
-        relevant Ethereum testnet environment, not only a local
-        development environment.
-\end{itemize}
-
-\pagebreak
 \section{Interaction between components}
 
 The interaction between components, and users is depicted in Figure \ref{fig:component-diagram}.

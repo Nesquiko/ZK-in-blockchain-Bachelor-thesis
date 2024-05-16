@@ -1,12 +1,68 @@
 \chapter{Solution Design}\label{chapter:solution}
 
+The core problem this thesis addresses is the inherent lack of privacy in
+blockchain transactions. While blockchains like Ethereum offer transparency
+and security, the public nature of transactions exposes user identities and
+financial activities, raising significant privacy concerns. This work
+introduces a novel solution to this problem by ZKPs to create a stealth
+address scheme.
+
+The key novelty and scientific contribution of this thesis lie in the design
+and implementation of a proof-of-concept stealth address scheme that utilizes
+ZKPs. This scheme allows users to receive funds without publicly revealing
+their identities, enhancing privacy in blockchain transactions. The proposed
+solution enables the creation of stealth addresses derived from the
+recipient's public data, ensuring that only the recipient can control and
+access the funds sent to these addresses. The use of ZKPs allows the recipient
+to prove ownership of the stealth address without disclosing any private
+information, thus preserving anonymity.
+
+Furthermore, this thesis contributes to the field by demonstrating the
+practical application of ZKPs in addressing real-world privacy challenges in
+blockchain technology. By presenting a conceptual implementation of the
+stealth address scheme, this work showcases the potential of ZKPs to enhance
+privacy and security in blockchain applications.
+
 The Solution Design section outlines the design of a stealth address
-scheme using ZKPs for the Ethereum blockchain. The scenario which is being
-solved involves Alice (sender), who wishes to send funds to Bob (recipient)
+scheme utilizing ZKPs. The scenario which is being solved involves Alice
+(sender), who wishes to send funds to Bob (recipient)
 discreetly, ensuring no one else can identify Bob as the recipient, and that
-only Bob can control the funds sent to a stealth address. This part of the
-thesis details the application of ZKPs employed to achieve this privacy,
+only Bob can control the funds sent. This part of the
+thesis details the application of ZKPs to achieve this privacy,
 allowing Alice to complete the transaction without compromising Bob's identity.
+
+\section{Requirements}
+
+The solution enables a proof of concept stealth wallet. This will not be a
+full featured wallet, only one satisfying these requirements:
+
+\subsection*{Functional requirements}
+\begin{itemize}
+    \item \textbf{Meta Stealth Address Retrieval:} The solution must enable senders
+        to query and retrieve meta stealth addresses from the registry.
+    \item \textbf{Ephemeral Key Exchange:} The solution needs a mechanism for senders
+        to submit ephemeral keys and owners to query them.
+    \item \textbf{Stealth Wallet Deployment:} Senders must be able to deploy
+        stealth wallet smart contracts, specifying the code and depositing funds.
+    \item \textbf{Zero-Knowledge Proof Generation:} The solution must provide a way
+        for owners to generate ZKPs that demonstrate ownership.
+    \item \textbf{Zero-Knowledge Proof Verification:} Smart contracts must be able
+        to verify the ZKPs submitted by owners.
+    \item \textbf{Stealth Wallet Withdrawal:} Upon successful ZKP
+        verification, the smart contract must execute a withdrawal, transferring
+        the entire stealth wallet balance to the owner's designated address.
+\end{itemize}
+
+\subsection*{Non-functional requirements}
+\begin{itemize}
+    \item \textbf{Security:} The solution must prioritize the protection of private keys.
+    \item \textbf{Privacy:} Stealth addresses and the link between owners and
+        their stealth wallets should be obscured to preserve on-chain privacy.
+    \item \textbf{Compatibility:} The solution should be compatible with
+        relevant Ethereum testnet environment, not only a local
+        development environment.
+\end{itemize}
+
 
 \section{High Level Overview}
 
@@ -43,7 +99,6 @@ proof and thus interact with the address.
     \includegraphics[scale=0.18]{assets/images/high-level.png}
     \caption{High Level Overview}
     \label{fig:hig-level}
-	\cite{ButerinIncompleteGuide}
     \vspace{0.5cm}
 \end{figure}
 
@@ -124,7 +179,7 @@ rejected.
 \section{Overview}
 
 The whole solution design is illustrated in Figure \ref{fig:solution},
-and was inspired by the work of Vitalik Buterin\cite{ButerinIncompleteGuide}.
+and was inspired by the work of Vitalik Buterin \cite{ButerinIncompleteGuide}.
 
 \begin{figure}[h]
     \centering
