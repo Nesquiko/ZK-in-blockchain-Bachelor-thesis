@@ -48,7 +48,9 @@ to prove to Bob that she knows an algorithm, which computes some pair $(N, y)$,
 such that this pair is part of the quadratic residue language $QR$ \cite{Goldwasser1989}.
 $QR$ is defined as:
 
-\[QR = \lbrace(N, y): \exists x, y \equiv x^2 \pmod{N}\rbrace\]
+\begin{equation}
+    QR = \lbrace(N, y): \exists x, y \equiv x^2 \pmod{N}\rbrace
+\end{equation}
 
 \begin{figure}[h!]
     \centering
@@ -99,7 +101,7 @@ application. Many ZKP protocols only require from the verifier a random input
 (for instance, a coin toss). Protocols, in which the verifier's role is
 generating some randomness and making it public are called public coin protocols \cite{Babai1988,Goldwasser1986}.
 The paper "How To Prove Yourself: Practical Solutions to Identification and
-Signature Problems"\cite{Fiat} by Fiat and Shamir demonstrates how these
+Signature Problems" \cite{Fiat} by Fiat and Shamir demonstrates how these
 interactive public coin protocols can be efficiently transformed into
 non-interactive ones, offering a more scalable and practical solution for ZKPs.
 
@@ -148,7 +150,9 @@ The computation model used to create ZKPs is an arithmetic circuit in a
 finite field $\mathbb{F}_p$. The arithmetic circuit is a function which takes
 $n$ elements from field $\mathbb{F}_p$ and returns one element from that field.
 
-\[AC: \mathbb{F}_p^n \rightarrow \mathbb{F}_p \]
+\begin{equation}
+    AC: \mathbb{F}_p^n \rightarrow \mathbb{F}_p
+\end{equation}
 
 The $AC$ can be represented as a directed acyclic graph, or a polynomial. For
 example, polynomial $x_1x_2 + (x_2 + x_3)^2$ represents the same circuit as this
@@ -169,34 +173,34 @@ where $\alpha, \beta, \gamma$ are affine combinations of variables $w$ and $x$,
 where $w$ is a witness (private inputs) and $x$ is a public inputs.
 
 These are some examples of R1CS equations:
-\begin{displaymath}
-    \begin{array}{l}
-        (w_1 + x_3) \times (w_2 - x_1 + 1) = w_3 \\
-        w_1 \times w_1 = x_1                     \\
-        w_1 \times x_2 = w_3
-    \end{array}
-\end{displaymath}
+\begin{equation}
+    \begin{aligned}
+    (w_1 + x_3) \times (w_2 - x_1 + 1) = w_3 \\
+    w_1 \times w_1 = x_1                     \\
+    w_1 \times x_2 = w_3
+    \end{aligned}
+\end{equation}
 
 And here is an example of a invalid R1CS equations, because they are not linear
 combinations of variables $w$ and $x$:
 
-\begin{displaymath}
-    \begin{array}{l}
+\begin{equation}
+    \begin{aligned}
         w_1 \times x_3 \times w_2 = w_3 \\
         w_1 \times w_1 \times w_1 = x_1 \\
         w_1 \times x_2 + w_3 = w_4 \times w_5
-    \end{array}
-\end{displaymath}
+    \end{aligned}
+\end{equation}
 
 To constrain the operation $w_1^3 = x_1$ in R1CS, there must be two equations, with
 a new intermediary variable $w_2$:
 
-\begin{displaymath}
-    \begin{array}{l}
+\begin{equation}
+    \begin{aligned}
         w_1 \times w_1 = w_2 \\
         w_1 \times w_2 = x_1
-    \end{array}
-\end{displaymath}
+    \end{aligned}
+\end{equation}
 
 \section{SNARKs}
 
@@ -243,7 +247,7 @@ witness $w$ and creates a proof $\pi$ which proves that $C(x, w) = 0$.
 The $Verify$ algorithm takes the verifier's parameters $vp$, public input $x$ and
 proof $\pi$ and returns $accept/reject$. These algorithms combine two
 cryptographic primitives, a functional commitment scheme and an interactive
-oracle proof, in order create and verify the proof.
+oracle proof \cite{SassonIOPs}, in order create and verify the proof.
 
 Functional commitment scheme is a cryptographic primitive, which allows the
 prover to commit to a function $f$ and the verifier can query the commitment and
@@ -259,7 +263,9 @@ Then during the interaction prover and verifier exchange additional function
 commitments $comm_{f1}, comm_{f2}, \dots, comm_{fm}$, and random values $r_1, r_2, \dots, r_m$.
 At the end verifier computes:
 
-\[ Verify^{comm_{f1}, comm_{f2}, \dots, comm_{fm}, \ldots, comm_{fn}}(x, r_1, r_2, \dots, r_m) = accept/reject \]\cite{SassonIOPs}
+\begin{equation}
+    Verify^{comm_{f1}, comm_{f2}, \dots, comm_{fm}, \ldots, comm_{fn}}(x, r_1, r_2, \dots, r_m) = accept/reject
+\end{equation}
 
 The $Verify$ algorithm computes if the proof is valid, based on queried
 function commitments from $vp$, and the function commitments which were
@@ -272,7 +278,9 @@ in the following subsection.
 
 To make this process non-interactive, the Fiat-Shamir transform is applied on
 the random values $r_1, r_2, \dots, r_m$. So the proof $\pi$ is a string of
-\[ (comm_{f1}, FS(r_1), comm_{f2}, FS(r_2), \dots, comm_{fm}, FS(r_m)) \]
+\begin{equation}
+    (comm_{f1}, FS(r_1), comm_{f2}, FS(r_2), \dots, comm_{fm}, FS(r_m))
+\end{equation}
 Verifier than computes $Verify(vp, x, \pi) = accept/reject$, where $\pi$ is
 a transcript of the interaction between prover and Fiat-Shamir supplied random
 values.
@@ -283,7 +291,9 @@ The polynomial zero test is at the heart of the SNARK construction. Given a
 polynomial $f \in \mathbb{F}_p^{\leq d}[X]$, the probability that a random
 element $x \in \mathbb{F}_p$ is a root of $f$ is $d/p$.
 
-\[ \Pr[f(x) = 0] \leq \frac{d}{p} \]
+\begin{equation}
+    \Pr[f(x) = 0] \leq \frac{d}{p}
+\end{equation}
 
 For example, $p = 2^{256}$ and $d = 2^{32}$, the probability that a random
 element $x \in \mathbb{F}_p$ is a root of $f$ is $2^{224}$. This is a negligible
