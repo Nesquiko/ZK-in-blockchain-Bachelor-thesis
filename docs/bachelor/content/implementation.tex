@@ -37,9 +37,9 @@ The interaction between components, and users is depicted in Figure \ref{fig:com
 
 \section{Circuits}
 
-Circuits for proving and verifying ZKPs are written in Circom 2\cite{circomCircomDocumentation}.
+Circuits for proving and verifying ZKPs are written in Circom 2 \cite{circomCircomDocumentation}.
 With circom compiler, a circuit is compiled into a Groth16
-ZK-SNARK proof system\cite{Groth16} representation. Circom also generates
+ZK-SNARK proof system \cite{Groth16} representation. Circom also generates
 either C++ of Wasm source files for computing witness (proof) for the
 circuit. Circuit written in this study, which proves ownership, has
 these private inputs:
@@ -57,7 +57,7 @@ And these public inputs:
 Groth16 requires a trusted setup for each circuit. For Groth16 trusted
 setup, there are two parts:
 \begin{enumerate}
-    \item Powers of Tau ceremony\cite{PowersOfTau},
+    \item Powers of Tau ceremony \cite{PowersOfTau},
     \item and phase 2 dependent on the circuit.
 \end{enumerate}
 Powers of Tau ceremony is used to generate initial parameters for a SNARK.
@@ -67,16 +67,16 @@ the entire process is trustworthy and the initial parameters are secure
 for use with any circuit. There is ongoing public powers of tau ceremony
 called Perpetual Powers of Tau \cite{PerpetualPTAU}. Its goal is to
 securely generate SNARK parameters for circuits. In this study a powers
-of tau ceremony file from SnarkJS\cite{snarkjs} is used, which is from
+of tau ceremony file from SnarkJS \cite{snarkjs} is used, which is from
 this ceremony. Phase 2 is generated with SnarkJS and is specific for circuit.
 
 \section{Smart contracts}
 
 Smart contracts in this implementation are written in programming
-language Solidity\cite{solidity} and are developed and tested
-with Foundry\cite{foundry}. They are deployed through
-Infura\cite{infura} Ethereum RPC provider to the Sepolia Ethereum
-testnet\cite{sepolia}.
+language Solidity \cite{solidity} and are developed and tested
+with Foundry \cite{foundry}. They are deployed through
+Infura \cite{infura} Ethereum RPC provider to the Sepolia Ethereum
+testnet \cite{sepolia}.
 
 There are four smart contracts implemented. A meta stealth address
 registry which holds meta stealth addresses. A ephemeral key registry
@@ -121,8 +121,8 @@ implemented stealth address scheme.
 \section{Web app}
 
 Browser wallet client used to interact with stealth wallets is written in
-frontend framework SolidJS\cite{solidjs}, with Web3JS\cite{web3js}
-as the main library for interacting with blockchain, and Infura\cite{infura}
+frontend framework SolidJS \cite{solidjs}, with Web3JS \cite{web3js}
+as the main library for interacting with blockchain, and Infura \cite{infura}
 is used as a Ethereum RPC provider.
 
 It consists of two sub-pages, one for sender (Alice), in which a sender
