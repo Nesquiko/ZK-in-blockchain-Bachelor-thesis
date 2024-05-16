@@ -4,9 +4,18 @@ In this chapter, the security of the Stealth Address ZKP Scheme is informally di
 
 \section{Assumptions}
 
+The security of the stealth address scheme relies on several key assumptions.
+These include the security of the Groth16 ZK-SNARK system, the integrity of
+the trusted setup process, the collision resistance of the hash function, the
+robustness of the elliptic curve cryptography used, and the
+confidentiality of the recipient's and sender's secret values. These
+assumptions and consequences in a case of their falsehood are explained in next
+subsections.
+
+
 \subsection{Groth16}
 
-It is assumed that the pairing-based ZK-SNARK system Groth16\cite{Groth16} has these properties:
+It is assumed that the pairing-based ZK-SNARK system Groth16 \cite{Groth16} has these properties:
 \begin{enumerate}
     \item Completness - honest prover will always convince honest verifier
     \item Soundness - dishonest prover will not convince honest verifier
@@ -25,7 +34,7 @@ learn Bob's identity, hence it would no longer be a stealth address.
 
 \subsection{Trusted Setup}
 
-The setup phase of Groth16\cite{Groth16} includes a trusted setup in order to generate
+The setup phase of Groth16 \cite{Groth16} includes a trusted setup in order to generate
 public parameters. The premise of the trusted setup is that the original parameters
 used to create the public ones are thrown away, if not then the party which
 produced public parameters can forge false proofs, yet the verifier would
@@ -60,7 +69,7 @@ discover the identity of Bob, or any of his other stealth addresses.
 \subsection{Elliptic Curve Crypthography - Secp256k1}
 
 Next assumption is that the Secp256k1 elliptic curve parameters used in Ethereum
-and Bitcoin\cite{bitcoinSecp256k1Bitcoin} are well-chosen and do not contain any backdoors. Additionally, it is
+and Bitcoin \cite{bitcoinSecp256k1Bitcoin} are well-chosen and do not contain any backdoors. Additionally, it is
 assumed that advancements in cryptographic research and technology do not
 compromise the security of Secp256k1.
 
