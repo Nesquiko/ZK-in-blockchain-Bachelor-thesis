@@ -1,18 +1,27 @@
 \chapter{Conclusion}\label{chapter:conclusion}
 
-\section{Summary}
-
 This thesis has presented how ZKPs can be applied to the problem of stealth
 addresses in Ethereum. How one can receive payments without revealing their
 identity, and do so without the need to actively communicate with the sender.
 
-This proof of concept of a ZKP Stealth Address scheme on Ethereum allows
+This proof of concept of a ZKP Stealth address Scheme on Ethereum allows
 a sender to send funds to a recipient without any prior communication, and
 without submitting any data, that links the sender with the recipient, to the blockchain.
 And allows the recipient to prove that they are the intended recipient of the
 funds, without revealing their identity, and without the need to actively
 communicate with the sender.
 
+The key novelty and scientific contribution of this work lie in the successful
+demonstration of the practical application of ZKPs to address real-world
+privacy challenges in blockchain technology. By presenting a conceptual
+implementation of the stealth address scheme, this thesis showcases the
+potential of ZKPs to enhance privacy and security in blockchain-based
+applications. The scheme's design allows for the creation of stealth addresses
+that are not directly linked to the recipient's identity, while still enabling
+the recipient to prove ownership and control over the funds. This
+proof-of-concept implementation serves as a contribution to the
+ongoing research and development in the field of privacy-preserving blockchain
+technologies.
 
 \section{Future Work}
 
@@ -29,7 +38,7 @@ storage that stores these keys in a list. This method does not scale well with
 mass adoption. Each recipient would have to scan the entire list of keys to
 check if any belong to them.
 
-Current ERC-5564\cite{ethereumERC5564Stealth} proposal, which differs from
+Current ERC-5564 \cite{ethereumERC5564Stealth} proposal, which differs from
 here proposed scheme mainly in the use of elliptic curve cryptography instead
 of ZKPs, uses view tags to reduce the number of keys that need to be scanned.
 Or, different approach, proposed by Xin Wang, Li Lin, Yao Wang \cite{Wang2023}
@@ -54,8 +63,8 @@ friends, mobile phone, hardware wallet or some kind of institution. The wallet
 holds a public key to some user owned private key. Only this key can control
 the wallet. If the user loses their private key, they can request the
 guardians to change the associated public key in the wallet, thus changing the
-private key that is used to control the wallet\cite{ButerinSocialRecovery}.
-An incomplete implementation of this concept was proposed by Vitalik Buterin\cite{ButerinIncompleteGuide},
+private key that is used to control the wallet \cite{ButerinSocialRecovery}.
+An incomplete implementation of this concept was proposed by Vitalik Buterin \cite{ButerinIncompleteGuide},
 which uses ZKPs to prove to the stealth addresses, that the user is the owner
 of the wallet.
 
