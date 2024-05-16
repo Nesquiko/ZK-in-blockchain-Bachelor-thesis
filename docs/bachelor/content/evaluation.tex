@@ -111,6 +111,84 @@ and funds are transferred to the chosen withdrawal address, as shown in figure \
     \label{fig:after-withdrawal}
 \end{figure}
 
+\section{Gas analysis}
+
+The gas consumption of the smart contracts was analyzed using the \texttt{forge test --gas-report}
+command, which is part of the Foundry development framework. The most important
+gas metric is the one for withdrawing funds from StealthWallet contract,
+because in that function the proof validation occurs. The median for it
+is \texttt{223902} gas, little higher than a Uniswap V3 swap.
+The gas cost of the withdrawal function is dominated by the proof verification, which is done by
+the \texttt{verifyProof} function in the \texttt{Groth16Verifier} contract. This function has a
+constant gas cost of \texttt{195686}. The remaining gas is used for other operations
+in the withdrawal function, such as transferring funds to the recipient.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|r|r|r|r|r|}
+        \hline
+        \textbf{EphemeralKeyRegistry} &  &  &  &\\
+        \hline
+        Deployment Cost & Deployment Size &  &  &\\
+        400998 & 1642 &  &  &\\
+        \hline
+        Function & min & avg & median & max\\
+        \hline
+        getKeysBatch & 423 & 4340 & 4920 & 10612\\
+        submit & 58133 & 160677 & 161129 & 178229\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|r|r|r|r|r|}
+        \hline
+        \textbf{MetaStealthAddressRegistry} &  &  &  &\\
+        \hline
+        Deployment Cost & Deployment Size &  &  &\\
+        501153 & 2107 &  &  &\\
+        \hline
+        Function & min & avg & median & max\\
+        \hline
+        addressMetaStealthAddress & 1956 & 3105 & 1956 & 5404\\
+        setMetaStealthAddress & 25346 & 60353 & 36146 & 119051\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|r|r|r|r|r|}
+        \hline
+        \textbf{Groth16Verifier} &  &  &  &\\
+        \hline
+        Deployment Cost & Deployment Size &  &  &\\
+        371621 & 1506 &  &  &\\
+        \hline
+        Function & min & avg & median & max\\
+        \hline
+        verifyProof & 195686 & 195686 & 195686 & 195686\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|r|r|r|r|r|}
+        \hline
+        \textbf{StealthWallet} &  &  &  &\\
+        \hline
+        Deployment Cost & Deployment Size &  &  &\\
+        268322 & 1257 &  &  &\\
+        \hline
+        Function & min & avg & median & max\\
+        \hline
+        withdraw & 23100 & 182078 & 223902 & 257409\\
+        \hline
+    \end{tabular}
+\end{table}
+
 \section{Static analysis}
 
 The implementation of the smart contracts was analyzed using the static analyzers
