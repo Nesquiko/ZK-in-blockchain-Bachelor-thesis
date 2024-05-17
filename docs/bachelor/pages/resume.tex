@@ -44,4 +44,82 @@ V kapitole Vyhodnotenie (\ref{chapter:conclusion}) sa
 vyhodnocuje implementácia schémy a diskutujú sa jej výsledky. Záver zhŕňa
 zistenia práce a navrhuje potenciálne smery pre budúci výskum.
 
+\section{Analýza}
+
+Kapitola Analýza sa analyzuje ZKPs, kryptografickou metódou, ktorá umožňuje
+overiť pravdivosť tvrdenia bez odhalenia jeho obsahu. Popisuje interaktívne
+dôkazy, kde overovateľ a dokazovateľ interagujú, aby overili pravdivosť
+tvrdenia bez odhalenia ďalších informácií. Tieto dôkazy sú však
+nepraktické pre reálne aplikácie, pretože vyžadujú, aby bol dokazovateľ online
+a komunikoval s každým overovateľom.
+
+Fiat-Shamir transformácia rieši túto nepraktickosť tým, že umožňuje previesť
+interaktívny dôkaz na neinteraktívny. To znamená, že dôkaz môže byť
+overený bez priamej interakcie, čo je oveľa praktickejšie a škálovateľnejšie
+riešenie.
+
+Na praktickú implementáciu dôkazov s nulovým vedomím je potrebné definovať a
+zakódovať tvrdenie. Na tento účel sa používajú aritmetické obvody, čo je
+výpočtový model zložený z operácií sčítania a násobenia. Tento obvod zakóduje
+tvrdenie do formy vhodnej pre "zk-ifying".
+
+SNARKs (Succinct Non-interactive ARguments of Knowledge) sú najčastejšie
+používaným systémom ZKP. Sú stručné, čo znamená, že veľkosť dôkazu je malá a
+majú relatívne rýchly čas overenia.
+
+Záver kapitoly Analýza skúma, ako systémy ZKP, ako napríklad SNARKs, umožňujú
+vytvorenie schémy tajných adries. Táto
+časť hodnotí, ako tieto systémy spĺňajú potrebné vlastnosti pre schému tajných
+adries, pričom sa zameriava na ich schopnosť zabezpečiť zachovať anonymitu
+identity príjemcu transakcie.
+
+\section{Súvisiaca práce}
+
+So vzrastom kryptomien získali ZKPs značnú popularitu nielen v akademických
+kruhoch, ale aj medzi startupmi a investormi. Mnohí výskumníci skúmajú túto
+oblasť a už sa nepovažuje za kryptografiu len pre odborníkov.
+
+Do ekosystému tajných adries však nie je veľa príspevkov.
+Napríklad práca Fan, Jia a Wang, Zhen a Luo, Yili a Bai, Jian
+a Li, Yarong a Hao, Yao \cite{FanJiaWang2019} predstavili novú schému tajných adries.
+Táto schéma sa vylepšuje rôzne aspekty iných schém, ako napríklad to aby používatelia
+nemuseli spravovať viacero párov kľúčov alebo sa zapájali do
+dodatočnej súkromnej komunikácie pred každou transakciou. V ich prístupe
+stačí, aby si používateľ ponechal jeden pár kľúčov pre počiatočnú
+certifikáciu, čo zjednodušuje správu kľúčov a znižuje náklady na úložisko.
+Odosielateľ vytvorí jednorazovú transakčnú adresu a pripojí ju k transakcii,
+zatiaľ čo príjemca použije svoj súkromný kľúč na overenie transakcie priamo z
+blockchainu, čím sa eliminuje potreba samostatného súkromného kanála. Schéma
+tiež ponúka flexibilitu pre reguláciu, čo umožňuje, aby transakcie boli buď
+úplne alebo čiastočne regulované na základe bezpečnostných a právnych požiadaviek.
+
+Wang \cite{Wang2023} predstavil koncept Fast Stealth Addresses (FSAs) na
+zlepšenie efektivity vyhľadávania efemérnych kľúčov. Ich prístup sa snaží prekonať lineárny čas vyhľadávania
+vyžadovaný v existujúcich schémach tým, že umožňuje konštantný čas rozpoznania
+na určenie, či blok obsahuje transakcie príjemcu, a logaritmický čas
+vyhľadávania na nájdenie konkrétnych. Autori poskytujú všeobecnú
+konštrukciu schémy FSA za predpokladov členstva v podskupine súvisiacich s
+rozkladom čisel a inštancujú konkrétne schémy založené na špecifických
+teoreticko číselných predpokladoch. Formalizujú tiež bezpečnostný model schémy
+FSA a poskytujú bezpečnostnú dôkaz.
+
+Na Ethereume existujú dva protokoly, ktoré implementujú schému tajných adresy. Prvý
+sa volá Nocturne \cite{nocturne}. Protokol je kombináciou kryptografie eliptických
+kriviek a ZKPs. V tomto protokole uzamknete svoje prostriedky v ekosystéme Nocturne,
+v ktorom sa nové tajné adresy vytvárajú pomocou schémy adries tajných za použitia eliptických kriviek a k
+svojim prostriedkom pristupujete odosielaním ZKPs. Podľa ich príspevku na Twitteri však svoj protokol
+ukončujú.
+
+Druhý sa volá Umbra \cite{umbra}. Umbra je protokol na Ethereume, ktorý implementuje
+tajné adresy iba pomocou kryptografie eliptických kriviek. V tomto protokole má
+príjemca súkromné kľúče. Odosielateľ vygeneruje náhodné číslo, zašifruje ho
+pomocou verejného kľúča príjemcu a potom vypočíta stealth adresu z verejného
+kľúča príjemcu a náhodného čísla. Zašifrované náhodné číslo, efemérny verejný
+kľúč a tajných adresa sa potom zverejnia. Príjemca môže skenovať tieto
+oznámenia, dešifrovať náhodné číslo pomocou svojho súkromného kľúča a
+skontrolovať, či odvodená adresa zodpovedá adrese v oznámení. Ak áno,
+môžu potom použiť svoj kľúč na prístup k nej.
+
+% TODO
+
 \end{otherlanguage}
