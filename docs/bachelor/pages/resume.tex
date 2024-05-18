@@ -120,6 +120,96 @@ oznámenia, dešifrovať náhodné číslo pomocou svojho súkromného kľúča 
 skontrolovať, či odvodená adresa zodpovedá adrese v oznámení. Ak áno,
 môžu potom použiť svoj kľúč na prístup k nej.
 
+\section{Návrh riešenia}
+
+Návrh riešenia sa zaoberá návrhom schémy tajných adries využívajúcej
+ZKPs. Schéma umožňuje odosielateľovi (Alice) poslať
+prostriedky príjemcovi (Bobovi) bez toho, aby verejne odhalila jeho
+identitu. Funguje nasledovne:
+
+\begin{itemize}
+    \item \textbf{Príjemca (Bob) zverejní meta údaje tajnej adresy:} Bob
+        vygeneruje tajnú hodnotu a uverejní svôj verejný kľúč a haš tejto hodnoty.
+        Tieto údaje reprezentujú jeho meta tajnú adresu.
+    \item  \textbf{Odosielateľ (Alica) odošle finančné prostriedky: } Alica si dohľadá
+        Bobove meta údaje na blockchaine, vygeneruje vlastnú tajnú hodnotu, vypočíta
+        kód (haš z kombinácie Bobovho a jej hašu), vytvorí novú tajnú adresu (múdry kontrakt)
+        s týmto kódom, pošle na ňu finančné prostriedky a zašifruje svoju tajnú hodnotu
+        a adresu kontraktu Bobovým verejným kľúčom. Tento zašifrovaný kľúč sa
+        nazýva efemérny kľúč a zverejní ho do registráru.
+    \item \textbf{Príjemca (Bob) získa prístup k finančným prostriedkom:} Bob
+        dešifruje efemérny kľúč svojím súkromným kľúčom a získa prístup k
+        Alicinej tajnej hodnote a adrese kontraktu s finančnými prostriedkami.
+    \item \textbf{Príjemca (Bob) prevezme kontrolu nad tajnou adresou:} Bob
+        dokáže kontraktu na adrese tým, že vytvorí ZKP, ktorý potvrdzuje, že pozná
+        Alicinu aj svoju tajnú hodnotu a že ich kombinácia sa zhoduje s kódom
+        v zmluve tajnej adresy. Tento dôkaz odošle do kontraktu na adrese,
+        ktorá ho overí.
+\end{itemize}
+
+Táto schéma zabezpečuje, že iba Bob môže kontrolovať a získať prístup k
+finančným prostriedkom zaslaným na stealth adresu. Zároveň chráni jeho
+identitu, pretože stealth adresa nie je priamo spojená s jeho verejnou
+identitou.
+
+
+\section{Diskusia o bezpečnosti}
+
+V tejto kapitole sú neformalne predstavené bezpečnostné predpoklady, z ktorých
+vyplýva bezpečnosť navrhnutej schémy.
+
+\begin{enumerate}
+    \item \textbf{Groth16:} Je predpokladané, že ZKP systém Groth16 \cite{Groth16}:
+        \begin{itemize}
+            \item Kompletný (completness) - čestný dokazovateľ vždy presvedči čestného overovateľa.
+            \item Solídny (soundness) - nečestný dokazovateľ nepresvedčí čestného overovateľa.
+            \item Nulové vedomie (zero knowledge) - nečestný overovateľ sa nedozvie nič, okrem
+                pravdivostnej hodnoty dokazovaného výroku.
+        \end{itemize}
+    \item \textbf{Dôveryhodné nastavenie:} Groth16 systém potrebuje na svoju bezpečnú
+        aplikáciu dôveryhodné nastavenie. Ak je nejaká strana v tomto nastavenií
+        je nečesntá, dokázala by to zneužiť a vytvárať valídne dokazy o nepravdivých
+        tvrdeniach.
+    \item \textbf{Nekolízna hašovacia funkcia:} predpokladá sa, že použitá inštancia
+        hašovacej funkcie je nekolízna.
+    \item \textbf{Kryptografia eliptických kriviek: } predpokladá sa, že Secp256k1
+        eliptická krivka neobsahuje žiadne zadné vrátka a ďalšie výskumy zaoberajúce
+        sa touto krivkou neprelomia jej bezpečnosť.
+    \item \textbf{Zistenie prijímateľovej tajnej hodnoty: } predpokladá sa, že prijímateľovu
+        tajnú hodnotu pozná iba prijímateľ.
+    \item \textbf{Zistenie odosieľateľovej tajnej hodnoty: } predpokladá sa, že odosieľateľovu
+        tajnú hodnotu pozná iba odosieľateľ.
+\end{enumerate}
+
+\section{Implementácia}
+
+Implementácia je rozdelená na tieto štyri časti:
+
+\subsection{Intrekcia medzi komponentami}
+
+V tejto sekcií je UML diagramami objasnené, ako medzi sebou jednotlivé komponenty
+interagujú a aký je interakčný tok medzi nimi.
+
+\subsection{Obvody}
+
+V sekcií Obvody je špecifikované aké verejné a privátne parametre implementovaný
+aritmetický obvod príjima. Taktiež je popísané ako bol prevedené dôveryhodné
+nastavenie.
+
+\subsection{Múdre kontrakty}
+
+Múdre kontrakty sú napísane v programovacom jazyku Solidity a boli vyvýjane a
+testované pomocou Foundry. Nasadené boli pomocou služby Infura na testovaciu
+sieť Sepolia.
+
+\subsection{Webová aplikácia}
+
+Peňaženka ktorá podporuje navrhnutú schému tajných adries je implementovaná ako
+webová aplikácia do prehliadačov. Pozostáva z dvoch častí, jedna pre posieľateľa
+(Alicu) a druhá pre prijímateľa (Boba).
+
+\section{Evaluácia}
+
 % TODO
 
 \end{otherlanguage}
