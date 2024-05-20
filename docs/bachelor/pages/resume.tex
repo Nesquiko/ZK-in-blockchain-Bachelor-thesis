@@ -210,6 +210,30 @@ webová aplikácia do prehliadačov. Pozostáva z dvoch častí, jedna pre posie
 
 \section{Evaluácia}
 
-% TODO
+Vyhodnotenie splnenia požiadaviek špecifikovaných v návrhu je opísane v tejto
+kapitole. Taktiež sa tu nachádza aj demonštrácia implementovaného návrhu. V tejto
+demonštácií je postupne prejdený celý postup ako by odosielateľ (Alica) poslala
+Ether prijímateľovi (Bobovi) a si ich vie prijímateľ sledovať a nakoniec
+aj prevziať. Ďalej je opísaná analýza poplatkov pre hlavné časť implementovaných
+múdrych kontraktov. Nakoniec sú zdokumentované výsledky nástrojov statickej analýzy
+Adreryn \cite{githubCyfrinaderyn} a Slither \cite{githubCryticslither}. Nálezy
+týchto nástrojov boli zaznamenané a buď opravené alebo inak adresované.
+
+\section{Záver}
+
+Táto práca poukázala ako sa dajú využiť dôkazy s nulovým vedomím na návrh
+schémy tajných adries. Tieto adresy umožňujú dvom účastníkom privatne si preposlať
+Ether na Ethereum blockchaine a to tak, že z verenjých dát sa nedá vyvodiť
+identita prijímateľa. Taktiež táto práca poskytla aj fungujúcu implementáciu
+navrhnutej schémy. 
+
+Naskytli sa aj ďalšie možné smery výskumu z tejto práce. V prípade väčšieho záujmu
+o používanie takejto schémy, prvým problémom by bola práve časť získavania
+efemérnych kľučov. Táto časť sa spolieha na naivné lineárne prehľadávanie
+registra efemérnych kľúčov. Wang \cite{Wang2023} adresuje tento problém a navrhuje
+schému rýchlych tajných adries, ktoré majú lepšie efektivitu pri dohľadávaní
+potrebných dát pre vykonanie privátnej transakcie. Vitalik Buterin \cite{ButerinIncompleteGuide}
+poukázal aj na problém pri strate privátnych kľúčov a načrtol potencionálne
+riešenie za použitia sociálne obnoviteľných peňaženiek.
 
 \end{otherlanguage}
