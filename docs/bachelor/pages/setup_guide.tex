@@ -1,0 +1,186 @@
+\thispagestyle{empty}
+\pagenumbering{arabic}
+\renewcommand*{\thepage}{C-\arabic{page}}
+
+\chapter{Setup guide}
+
+The following guide was done in a Ubuntu 24.04 docker image.
+To run this setup in different environment, install necessary requirements
+listed bellow and follow rest of the guide (all commands in the guide are
+ran under root user, consider using \texttt{sudo} if not you are not running
+them under root).
+
+One remark, this guide shows setup for the whole project, including compiling
+circuits, contracts and interacting with deployed ones. You can skip the
+circuits and contracts and go directly to the \ref{section:web} after the
+project initialization to interact with already deployed contracts.
+
+\section{Requirements}
+
+\begin{enumerate}
+    \item \textbf{Linux with at least kernel version 6} (other versions may or may not work).
+    \item \textbf{Git}
+    \item \textbf{Makefile}
+    \item \textbf{Node version 20.10.0 or higher}
+    \item \textbf{NPM version 10.2.3 or higher}
+    \item \textbf{Rust version 1.77.0 or higher} - \href{https://www.rust-lang.org/tools/install}{Installation guide}
+    \item \textbf{Circom version 2.1.18 or higher} - \href{https://docs.circom.io/getting-started/installation/}{Installation guide}
+    \item \textbf{SnarkJS version 0.7.3 or higher} - Same link as Circom installation guide, bottom of the page 
+    \item \textbf{Foundry version 0.2.0 or higher} - \href{https://getfoundry.sh/}{Installation guide}
+\end{enumerate}
+
+
+\section{Initialize project}
+
+Start the Ubuntu 24.04 docker image with (or any other preferred way of staring a docker image):
+\begin{minted}{bash}
+docker run -it -p 4173:4173 ubuntu:24.04 
+\end{minted}
+
+Firstly, to setup environment run these inside the running container:
+
+\begin{minted}{bash}
+apt update && apt upgrade -y
+apt install git make unzip curl wget -y
+\end{minted}
+
+\textbf{To install Node}, \href{https://github.com/nvm-sh/nvm}{NVM} is used, as it is
+easiest way to manage Node versions:
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+nvm install 20.10.0
+node --version # output 20.10.0
+npm --version # output 10.2.3
+\end{minted}
+
+\textbf{Install Rust} with Rustup:
+
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source root/.cargo/env
+rustup --version # output 1.27.0
+rustc -V # output 1.77.0
+cargo -V # output 1.77.0
+\end{minted}
+
+\textbf{Install Circom}, there are two options, either build it from source, or download the Linux binary.
+To build from source, please refer to this \href{https://docs.circom.io/getting-started/installation/}{Circom installation guide}.
+In this setup, the binary will be downloaded
+
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+wget https://github.com/iden3/circom/releases/latest/download/circom-linux-amd64
+chmod 777 circom-linux-amd64
+mv circom-linux-amd64 /usr/local/bin/circom
+circom --version # output 2.1.18
+\end{minted}
+
+\textbf{Install SnarkJS}, this tool can be downloaded via npm as a global package:
+
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+npm install -g snarkjs
+snarkjs # long output...
+\end{minted}
+
+\textbf{Install Foundry}:
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+curl -L https://foundry.paradigm.xyz | bash
+source /root/.bashrc
+foundryup
+forge --version # output 0.2.0
+\end{minted}
+
+\textbf{Download the project}, either via git:
+
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+git clone --recurse-submodules https://github.com/Nesquiko/ZK-in-blockchain-Bachelor-thesis.git
+\end{minted}
+
+Or unzip (if you are running this setup inside docker, see \href{https://docs.docker.com/reference/cli/docker/container/cp/}
+{docker cp command} for copying the zip from host machine into the container)
+submitted \texttt{BP\_LukasCastven.zip} file.
+
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+mkdir bp
+mv BP_LukasCastven.zip bp
+cd bp
+unzip BP_LukasCastven.zip
+\end{minted}
+
+\section{Compile circuits}
+
+To compile circuits navigate from project root to \texttt{circuits} and run:
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+make prover
+\end{minted}
+
+The command should end with these lines:
+
+\begin{verbatim}
+[INFO]  snarkJS: ZKey Ok!
+snarkjs zkey export verificationkey
+./ownership_final.zkey ./verification_key.json
+[INFO]  snarkJS: EXPORT VERIFICATION KEY STARTED
+[INFO]  snarkJS: > Detected protocol: groth16
+[INFO]  snarkJS: EXPORT VERIFICATION KEY FINISHED
+rm ownership_0000.zkey ownership_0001.zkey
+cp ./build/ownership_js/ownership.wasm ../stealth-wallet-app/public
+cp ./ownership_final.zkey ../stealth-wallet-app/public
+\end{verbatim}
+
+\section{Compile smart contracts}
+
+To compile smart contracts navigate from project root to \texttt{stealth-wallet} and run:
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+forge compile
+\end{minted}
+
+As these contracts are already deployed on Sepolia, you don't have to deploy them,
+but if you want, then create a \texttt{.env} which looks like this:
+
+\begin{verbatim}
+SEPOLIA_RPC_URL=<YOUR-SEPOLIA-RPC-URL>
+PRIVATE_KEY=<YOUR-PRIVATE-KEY>
+ETHERSCAN_API_KEY=<YOUR-ETHERSCAN-API-KEY>
+\end{verbatim}
+
+And then run this commnad:
+
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+make deploy-sepolia
+\end{minted}
+
+\section{Run web browser wallet}\label{section:web}
+
+To run the wallet, first navigate to \texttt{stealth-wallet-app} and create a
+\texttt{.env} file which looks like this (these private keys are random ones,
+they may contain some funds on some mainnet, in this project they were
+used only as a testing ones and already have some Ether on Sepolia):
+
+\begin{small}
+\begin{verbatim}
+VITE_SEPOLIA_RPC=<YOUR-SEPOLIA-RPC-URL>
+VITE_ALICE_PK=0xff56fc4f1ee05fca64b57dfa70cd3362af082024e2cb10e6507bb7fa0781887d
+VITE_BOB_PK=0x91a03d17e4436b2bafabbdd84335c3086c313e5c24122804ce4de94957502981
+VITE_BOB_PK_2=0xb91317c163be14ee7a2d39208e813a81eb335a34536329309340f4da821840dc
+\end{verbatim}
+\end{small}
+
+\pagebreak
+Then run these commands:
+\begin{minted}[breaklines,obeytabs=true,tabsize=2,breaksymbolleft=]{bash}
+npm i
+npm run build
+npm run serve
+\end{minted}
+
+Alice's sender part can be accessed on \url{http://localhost:4173/alice}, and
+Bob's receiver part can be accessed here \url{http://localhost:4173/bob}.
+
+Then just copy Bob's primary address, paste it into Alice's search and send some
+Ether. The average time for this process to be done is around 3 blocks, because
+the RPC url can sometimes put the transactions in next block. But it should not
+take more than one minute. After you get a confirmation popup on Alice's part,
+you can refresh Bob's tracked stealth addresses.
