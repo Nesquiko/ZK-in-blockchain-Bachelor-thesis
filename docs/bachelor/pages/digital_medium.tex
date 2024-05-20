@@ -22,20 +22,25 @@
     \par Contents of the digital medium (ZIP archive):
 \fi
 
-% \begin{minted}[linenos=false]{text}
-% Folder                  Contents
-% /bin                    binárne súbory umožňujúce ...
-%     /service
-%     /app
-% /models                 modely opísané v práci
-%     modelA
-%     modelB
-% /scripts
-% /data                   dátové množiny použité na ...
-% /praca-pdf              pdf verzia záverečnej práce
-%     /praca.pdf          pdf hlavná časť záverečnej práce
-%     /prilohy.pdf        pdf textové prílohy záverečnej práce
-
+\begin{minted}[linenos=false]{text}
+Folder                  Contents
+/circuits               Circom circuits
+    /circomlib              Circom library
+/docs                   Latex documentation source codes
+    /bachelor               Bachelor thesis latex source code   
+    /iitsrc                 Latex source code for IITSRC paper
+    /iitsrc-poster          PDF of a IITSRC poster
+/stealth-wallet         Foundry project
+    /broadcast              Information about deployed contracts
+    /lib                    Foundry and OpenZeppelin libraries
+    /script                 Smart contracts for deploying
+    /src                    Stealth addresses smart contracts
+    /test                   Foundry test
+/stealth-wallet-app     Web browser stealt wallet
+    /public                 Static files
+    /script                 Scripts for setup
+    /src                    Typescript source files
+    /test                   Unit tests
 \end{minted}
 
 % only if digital medium contents exceed 1 GB
